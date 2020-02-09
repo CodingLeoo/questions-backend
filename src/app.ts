@@ -1,0 +1,26 @@
+import { CoursesRouter } from './controllers/coursecontroller';
+import { UserRouter } from './controllers/usercontroller';
+import express from "express";
+import { authRouter } from './controllers/authcontroller';
+import { initConnection } from './helpers/database.helper';
+import { RequireAuth } from './middlewares/auth.midleware';
+
+const port = process.env.PORT || 3000;
+const dataBaseUrl = process.env.DATABASE_URL || "mongodb://localhost:27017/questions";
+
+initConnection(dataBaseUrl);
+const app: express.Application = express();
+
+
+// commons using
+app.use(express.json());
+app.all('/api/*' , RequireAuth);
+
+// Routes configuration
+app.use('/authentication/v1', authRouter);
+app.use('/api/user/v1', UserRouter);
+app.use('/api/courses/v1', CoursesRouter);
+
+app.listen(port, () => {
+    console.log(`app is up on port ${port}`);
+})

@@ -1,0 +1,50 @@
+{
+  "name": "questions-backend",
+  "version": "1.0.0",
+  "description": "NodeJs API for questions-app",
+  "main": "dist/app.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node .dist/app.js",
+    "start-dev": "node --inspect=5858 -r ts-node/register ./src/app.ts",
+    "start:watch": "nodemon",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Leonardo Ruiz",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^3.0.8",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "http-status": "^1.4.2",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.8.11",
+    "nodemon": "^2.0.2",
+    "ts-node": "^8.6.2",
+    "uuid": "^3.4.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^3.0.0",
+    "@types/jsonwebtoken": "^8.3.7",
+    "@types/mongoose": "^5.7.0",
+    "@types/uuid": "^3.4.7",
+    "@types/express": "^4.17.2",
+    "@types/mongodb": "^3.3.15",
+    "@types/node": "^13.7.0",
+    "tslint": "^6.0.0",
+    "typescript": "^3.7.5"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "**/*.test.ts",
+      "**/*.spec.ts",
+      ".git",
+      "node_modules"
+    ],
+    "watch": [
+      "src"
+    ],
+    "exec": "npm run start-dev",
+    "ext": "ts"
+  }
+}
