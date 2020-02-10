@@ -13,7 +13,8 @@ export interface IUser extends Document {
     role?: string
     last_token_date?: Date
     session_id?: string
-    getRole(): any
+    creation_date: Date
+    last_update_date : Date
 }
 
 export interface IUserSignUp {
@@ -33,11 +34,6 @@ const user: Schema = new Schema({
 }, { timestamps: { createdAt: 'creation_date', updatedAt: 'last_update_date' } });
 
 
-
-user.methods.getRole = () => {
-    // TODO : call roles collection
-    console.log('TODO : get roles');
-}
 
 export const User: Model<IUser> = model<IUser>("user", user);
 

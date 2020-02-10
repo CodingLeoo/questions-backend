@@ -6,6 +6,7 @@ import { v4 } from 'uuid';
 import { UNAUTHORIZED, NOT_FOUND, OK, INTERNAL_SERVER_ERROR, UNPROCESSABLE_ENTITY } from 'http-status';
 import { generateToken, refreshToken, invalidateToken } from './../helpers/security.helper';
 import { RequireAuth } from './../middlewares/auth.midleware';
+import { SESSION_ACTIVE_STATUS, AUTHENTICATION_FAILED_STATUS, INTERNAL_SERVER_ERROR_STATUS, USER_NOT_FOUND_STATUS, USER_EXISTS_STATUS, OK_STATUS } from './../utils/constants';
 
 export const authRouter: Router = Router();
 
@@ -13,12 +14,12 @@ authRouter.post('/login', (request: Request, response: Response) => {
     const body = request.body;
 
     User.findOne({ email: body.email }).then((user: IUser) => {
-        if (user.session_id) {
-            return response.status(UNAUTHORIZED).json({ code: UNAUTHORIZED, status: 'Session initialized , please close the session for request login again.' });
+        if (user?.session_id) {
+            return response.status(UNAUTHORIZED).json({ code: UNAUTHORIZED, status: SESSION_ACTIVE_STATUS });
         }
         compare(body.password, user.password, (err, result) => {
             if (err || !result) {
-                return response.status(UNAUTHORIZED).json({ code: UNAUTHORIZED, status: 'Authentication failed.' });
+                return response.status(UNAUTHORIZED).json({ code: UNAUTHORIZED, status: AUTHENTICATION_FAILED_STATUS });
             }
             user.session_id = v4();
             user.last_token_date = new Date();
@@ -27,12 +28,12 @@ authRouter.post('/login', (request: Request, response: Response) => {
             generateToken({ session_id: user.session_id, email: user.email, last_bearer_date: user.last_token_date }).then((token) => {
                 response.status(OK).json({ bearer: token, data: { user_name: user.user_name, email: user.email } });
             }).catch(() => {
-                response.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, desc: 'internal_server_error' });
+                response.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, desc: INTERNAL_SERVER_ERROR_STATUS });
             })
         })
     }).catch((err) => {
         console.log(err);
-        response.status(NOT_FOUND).json({ code: NOT_FOUND, status: 'user with parameters sended not found.' });
+        response.status(NOT_FOUND).json({ code: NOT_FOUND, status: USER_NOT_FOUND_STATUS });
     })
 })
 
@@ -42,12 +43,12 @@ authRouter.post('/signup', (request: Request, response: Response) => {
 
     User.findOne({ email: body.email }).then((user: IUser) => {
         if (user) {
-            response.status(UNPROCESSABLE_ENTITY).json({ code: UNPROCESSABLE_ENTITY, status: 'User exists.' })
+            response.status(UNPROCESSABLE_ENTITY).json({ code: UNPROCESSABLE_ENTITY, status: USER_EXISTS_STATUS })
         } else {
             hash(body.password, Math.floor(Math.random() * 10)).then((encryptedValue: string) => {
                 User.create({ email: body.email, user_name: body.user_name, password: encryptedValue })
-                    .then(() => {
-                        response.status(OK).json({ code: OK, status: 'released successfully.' });
+                    .then((result: IUser) => {
+                        response.status(OK).json({ code: OK, status: OK_STATUS, created_at: result.creation_date.toLocaleString() });
                     });
             }).catch((err) => {
                 response.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, desc: err.toString() });
