@@ -5,3 +5,4 @@ export const USER_NOT_FOUND_STATUS = 'user with sended parameters not found.';
 export const USER_EXISTS_STATUS = 'User exists.';
 export const OK_STATUS = 'released successfully.';
 export const UNAUTHORIZED_STATUS = 'you don´t have access to this resource.';
+export const SESSION_NOT_FOUND = 'not matched authorization with current sessions.';

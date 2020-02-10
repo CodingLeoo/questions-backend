@@ -23,6 +23,7 @@ authRouter.post('/login', (request: Request, response: Response) => {
                 return response.status(UNAUTHORIZED).json({ code: UNAUTHORIZED, status: AUTHENTICATION_FAILED_STATUS });
             }
             user.session_id = v4();
+            const prevDate = user.last_token_date;
             user.last_token_date = new Date();
             user.save();
 
@@ -36,7 +37,7 @@ authRouter.post('/login', (request: Request, response: Response) => {
                     data: {
                         user_name: user.user_name,
                         email: user.email,
-                        last_login_date: getDateWithTimeZone(user.last_token_date)
+                        last_login_date: getDateWithTimeZone(prevDate)
                     }
                 });
             }).catch(() => {

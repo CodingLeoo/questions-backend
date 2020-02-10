@@ -1,26 +1,15 @@
 import { Document, Schema, Model, model } from 'mongoose';
 
-export interface IUserLogin {
-    email: string
-    password: string
-}
-
 export interface IUser extends Document {
     user_name: string
     email: string
     photoURL?: string
-    password?: string
+    password: string
     role?: string
     last_token_date?: Date
     session_id?: string
     creation_date: Date
     last_update_date: Date
-}
-
-export interface IUserSignUp {
-    user_name: string
-    email: string
-    password: string
 }
 
 const user: Schema = new Schema({

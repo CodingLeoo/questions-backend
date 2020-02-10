@@ -1,3 +1,4 @@
+import { SESSION_NOT_FOUND } from './../utils/constants';
 import { sign, verify } from 'jsonwebtoken';
 import { User, IUser } from './../models/auth.models';
 import { v4 } from 'uuid';
@@ -42,7 +43,7 @@ export function verifyToken(token: string): Promise<IUser> {
                 if (user) {
                     resolve(user);
                 }
-                reject('not matched authorization with current sessions.');
+                reject(SESSION_NOT_FOUND);
 
             }).catch((fail : any) => {
                 console.log(fail);
