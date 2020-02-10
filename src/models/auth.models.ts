@@ -14,7 +14,7 @@ export interface IUser extends Document {
     last_token_date?: Date
     session_id?: string
     creation_date: Date
-    last_update_date : Date
+    last_update_date: Date
 }
 
 export interface IUserSignUp {
@@ -32,7 +32,6 @@ const user: Schema = new Schema({
     last_token_date: Date,
     session_id: String
 }, { timestamps: { createdAt: 'creation_date', updatedAt: 'last_update_date' } });
-
 
 
 export const User: Model<IUser> = model<IUser>("user", user);
