@@ -35,7 +35,8 @@ authRouter.post('/login', (request: Request, response: Response) => {
                     bearer: token,
                     data: {
                         user_name: user.user_name,
-                        email: user.email
+                        email: user.email,
+                        last_login_date: getDateWithTimeZone(user.last_token_date)
                     }
                 });
             }).catch(() => {
