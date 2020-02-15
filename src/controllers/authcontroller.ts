@@ -37,7 +37,7 @@ authRouter.post('/login', (request: Request, response: Response) => {
                     data: {
                         user_name: user.user_name,
                         email: user.email,
-                        last_login_date: getDateWithTimeZone(prevDate)
+                        last_login_date: getDateWithTimeZone(prevDate? prevDate : user.last_token_date)
                     }
                 });
             }).catch(() => {
