@@ -1,12 +1,12 @@
+import { Role, IRole } from './../models/role.model';
 import { Router, Request, Response } from 'express';
-import { IUser } from '../models/auth.models';
-import { User } from './../models/auth.models';
+import { User, IUser } from './../models/auth.models';
 import { compare, hash } from 'bcrypt';
 import { v4 } from 'uuid';
 import { UNAUTHORIZED, NOT_FOUND, OK, INTERNAL_SERVER_ERROR, UNPROCESSABLE_ENTITY } from 'http-status';
 import { generateToken, refreshToken, invalidateToken } from './../helpers/security.helper';
 import { RequireAuth } from './../middlewares/auth.midleware';
-import { SESSION_ACTIVE_STATUS, AUTHENTICATION_FAILED_STATUS, INTERNAL_SERVER_ERROR_STATUS, USER_NOT_FOUND_STATUS, USER_EXISTS_STATUS, OK_STATUS } from './../utils/constants';
+import { SESSION_ACTIVE_STATUS, AUTHENTICATION_FAILED_STATUS, INTERNAL_SERVER_ERROR_STATUS, USER_NOT_FOUND_STATUS, USER_EXISTS_STATUS, OK_STATUS, ROLE_NOT_FOUND_STATUS } from './../utils/constants';
 import { getDateWithTimeZone } from './../utils/time.utils';
 
 export const authRouter: Router = Router();
@@ -14,7 +14,7 @@ export const authRouter: Router = Router();
 authRouter.post('/login', (request: Request, response: Response) => {
     const body = request.body;
 
-    User.findOne({ email: body.email }).then((user: IUser) => {
+    User.findOne({ email: body.email }).populate("role" , "-_id -_v").then((user: IUser) => {
         if (user?.session_id) {
             return response.status(UNAUTHORIZED).json({ code: UNAUTHORIZED, status: SESSION_ACTIVE_STATUS });
         }
@@ -37,7 +37,8 @@ authRouter.post('/login', (request: Request, response: Response) => {
                     data: {
                         user_name: user.user_name,
                         email: user.email,
-                        last_login_date: getDateWithTimeZone(prevDate? prevDate : user.last_token_date)
+                        permissions : user.role,
+                        last_login_date: getDateWithTimeZone(prevDate ? prevDate : user.last_token_date)
                     }
                 });
             }).catch(() => {
@@ -50,7 +51,7 @@ authRouter.post('/login', (request: Request, response: Response) => {
     })
 })
 
-
+// TODO : add user id on collection if there´s a type (refered to topic)
 authRouter.post('/signup', (request: Request, response: Response) => {
     const body = request.body;
 
@@ -58,18 +59,26 @@ authRouter.post('/signup', (request: Request, response: Response) => {
         if (data) {
             response.status(UNPROCESSABLE_ENTITY).json({ code: UNPROCESSABLE_ENTITY, status: USER_EXISTS_STATUS })
         } else {
-            hash(body.password, Math.floor(Math.random() * 10)).then((encryptedValue: string) => {
-                User.create({ email: body.email, user_name: body.user_name, password: encryptedValue })
-                    .then((user: IUser) => {
-                        response.status(OK).json({
-                            code: OK,
-                            status: OK_STATUS,
-                            created_at: getDateWithTimeZone(user.creation_date)
-                        });
+            Role.findOne({ role_description: body.role }).then((dbRole: IRole) => {
+                if (!dbRole) {
+                    response.status(UNPROCESSABLE_ENTITY).json({ code: UNPROCESSABLE_ENTITY, status: ROLE_NOT_FOUND_STATUS })
+                } else {
+                    hash(body.password, Math.floor(Math.random() * 10)).then((encryptedValue: string) => {
+                        User.create({ email: body.email, user_name: body.user_name, password: encryptedValue , role: dbRole })
+                            .then((user: IUser) => {
+                                response.status(OK).json({
+                                    code: OK,
+                                    status: OK_STATUS,
+                                    created_at: getDateWithTimeZone(user.creation_date)
+                                });
+                            });
+                    }).catch((err) => {
+                        response.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, desc: err.toString() });
                     });
+                }
             }).catch((err) => {
                 response.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, desc: err.toString() });
-            })
+            });
         }
     });
 })

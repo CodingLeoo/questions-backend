@@ -1,11 +1,12 @@
 import { Document, Schema, Model, model } from 'mongoose';
+import { IRole } from './role.model';
 
 export interface IUser extends Document {
     user_name: string
     email: string
     photoURL?: string
     password: string
-    role?: string
+    role: IRole
     last_token_date?: Date
     session_id?: string
     creation_date: Date
@@ -17,7 +18,11 @@ const user: Schema = new Schema({
     user_name: { type: String, required: true },
     photoURL: String,
     password: { type: String, required: true },
-    role: String,
+    role: {
+        type: Schema.Types.ObjectId,
+        ref: 'role',
+        required: true
+    },
     last_token_date: Date,
     session_id: String
 }, { timestamps: { createdAt: 'creation_date', updatedAt: 'last_update_date' } });
