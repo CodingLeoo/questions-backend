@@ -6,7 +6,8 @@ export interface IUser extends Document {
     email: string
     photoURL?: string
     password: string
-    role: IRole
+    role: IRole,
+    topic? : number
     last_token_date?: Date
     session_id?: string
     creation_date: Date
@@ -23,6 +24,7 @@ const user: Schema = new Schema({
         ref: 'role',
         required: true
     },
+    topic : Number,
     last_token_date: Date,
     session_id: String
 }, { timestamps: { createdAt: 'creation_date', updatedAt: 'last_update_date' } });

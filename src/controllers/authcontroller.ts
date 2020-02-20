@@ -51,7 +51,6 @@ authRouter.post('/login', (request: Request, response: Response) => {
     })
 })
 
-// TODO : add user id on collection if there´s a type (refered to topic)
 authRouter.post('/signup', (request: Request, response: Response) => {
     const body = request.body;
 
@@ -64,7 +63,7 @@ authRouter.post('/signup', (request: Request, response: Response) => {
                     response.status(UNPROCESSABLE_ENTITY).json({ code: UNPROCESSABLE_ENTITY, status: ROLE_NOT_FOUND_STATUS })
                 } else {
                     hash(body.password, Math.floor(Math.random() * 10)).then((encryptedValue: string) => {
-                        User.create({ email: body.email, user_name: body.user_name, password: encryptedValue , role: dbRole })
+                        User.create({ email: body.email, user_name: body.user_name, password: encryptedValue, role: dbRole, topic: body.topic })
                             .then((user: IUser) => {
                                 response.status(OK).json({
                                     code: OK,
