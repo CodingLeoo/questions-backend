@@ -14,7 +14,7 @@ export const authRouter: Router = Router();
 authRouter.post('/login', (request: Request, response: Response) => {
     const body = request.body;
 
-    User.findOne({ email: body.email }).populate("role" , "-_id -_v").then((user: IUser) => {
+    User.findOne({ email: body.email }).populate("role", "-_id -_v").then((user: IUser) => {
         if (user?.session_id) {
             return response.status(UNAUTHORIZED).json({ code: UNAUTHORIZED, status: SESSION_ACTIVE_STATUS });
         }
@@ -37,7 +37,7 @@ authRouter.post('/login', (request: Request, response: Response) => {
                     data: {
                         user_name: user.user_name,
                         email: user.email,
-                        permissions : user.role,
+                        permissions: user.role,
                         last_login_date: getDateWithTimeZone(prevDate ? prevDate : user.last_token_date)
                     }
                 });
@@ -52,9 +52,9 @@ authRouter.post('/login', (request: Request, response: Response) => {
 })
 
 authRouter.post('/signup', (request: Request, response: Response) => {
-    const body = request.body;
+    const body = request.body as IUser;
 
-    User.findOne({ email: body.email }).then((data: IUser) => {
+    User.findOne({ $or: [{ email: body.email }, { code: body.code }] }).then((data: IUser) => {
         if (data) {
             response.status(UNPROCESSABLE_ENTITY).json({ code: UNPROCESSABLE_ENTITY, status: USER_EXISTS_STATUS })
         } else {
@@ -63,7 +63,7 @@ authRouter.post('/signup', (request: Request, response: Response) => {
                     response.status(UNPROCESSABLE_ENTITY).json({ code: UNPROCESSABLE_ENTITY, status: ROLE_NOT_FOUND_STATUS })
                 } else {
                     hash(body.password, Math.floor(Math.random() * 10)).then((encryptedValue: string) => {
-                        User.create({ email: body.email, user_name: body.user_name, password: encryptedValue, role: dbRole, topic: body.topic })
+                        User.create({ email: body.email, user_name: body.user_name, code: body.code, password: encryptedValue, role: dbRole, topic: body.topic })
                             .then((user: IUser) => {
                                 response.status(OK).json({
                                     code: OK,

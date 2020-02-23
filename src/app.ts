@@ -4,7 +4,7 @@ import express from "express";
 import { authRouter } from './controllers/authcontroller';
 import { initConnection } from './helpers/database.helper';
 import { RequireAuth, isValidToken } from './middlewares/auth.midleware';
-
+import cors from 'cors';
 const port = process.env.PORT || 3000;
 const dataBaseUrl = process.env.DATABASE_URL || "mongodb://localhost:27017/questions";
 
@@ -14,6 +14,7 @@ const app: express.Application = express();
 
 // commons using
 app.use(express.json());
+app.use(cors());
 app.all('/api/*', RequireAuth, isValidToken);
 
 // Routes configuration
