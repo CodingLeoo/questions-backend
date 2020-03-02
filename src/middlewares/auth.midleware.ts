@@ -17,11 +17,8 @@ export const RequireAuth = (request: Request, response: Response, next: NextFunc
 export const isValidToken = (request: Request, response: Response, next: NextFunction) => {
     const token = request.headers.authorization?.substr(7);
     verifyToken(token).then((user: IUser) => {
-        if (user.session_id) {
-            next();
-        } else {
-            response.status(UNAUTHORIZED).json({ code: UNAUTHORIZED, status: UNAUTHORIZED_STATUS });
-        }
+        request.headers.ssid = user.session_id;
+        next();
     }).catch((err: any) => {
         response.status(UNAUTHORIZED).json({ code: UNAUTHORIZED, status: err.toString() });
     })
