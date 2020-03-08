@@ -1,3 +1,4 @@
+import { ITopic } from './topic.models';
 import { Document, Schema, Model, model } from 'mongoose';
 import { IRole } from './role.model';
 
@@ -8,7 +9,7 @@ export interface IUser extends Document {
     photoURL?: string
     password: string
     role: IRole,
-    topic?: number
+    topic?: ITopic
     last_token_date?: Date
     session_id?: string
     creation_date?: Date
@@ -26,7 +27,10 @@ const user: Schema = new Schema({
         ref: 'role',
         required: true
     },
-    topic: Number,
+    topic: {
+        type: Schema.Types.ObjectId,
+        ref: 'topic',
+    },
     last_token_date: Date,
     session_id: String
 }, { timestamps: { createdAt: 'creation_date', updatedAt: 'last_update_date' } });
