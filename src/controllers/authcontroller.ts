@@ -15,6 +15,9 @@ authRouter.post('/login', (request: Request, response: Response) => {
     const body = request.body;
 
     User.findOne({ email: body.email }).populate("role", "-_id -_v").then((user: IUser) => {
+        if (!user) {
+            throw new Error(USER_NOT_FOUND_STATUS);
+        }
         if (user?.session_id) {
             return response.status(UNAUTHORIZED).json({ code: UNAUTHORIZED, status: SESSION_ACTIVE_STATUS });
         }
@@ -44,8 +47,7 @@ authRouter.post('/login', (request: Request, response: Response) => {
             })
         })
     }).catch((err) => {
-        console.log(err);
-        response.status(NOT_FOUND).json({ code: NOT_FOUND, status: USER_NOT_FOUND_STATUS });
+        response.status(NOT_FOUND).json({ code: NOT_FOUND, status: err.message });
     })
 })
 

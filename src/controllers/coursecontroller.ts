@@ -1,4 +1,3 @@
-import { CourseRequest } from './../models/course.models';
 import { Router, Request, Response } from 'express';
 
 
@@ -30,7 +29,7 @@ CoursesRouter.put('/update/:course', (request: Request, response: Response) => {
 
 CoursesRouter.delete('/delete/:course', (request: Request, response: Response) => {
     const courseId = request.params.course;
-    const body = request.body as CourseRequest;
+    const body = request.body;
     console.log(`course requested : ${body} , course-id : ${courseId}`);
     response.json({ status: 'exitoso' });
 })
