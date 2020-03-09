@@ -1,4 +1,5 @@
-import { getDateWithTimeZone, getDate, getHours } from './../utils/time.utils';
+import { START_ICON, LOGIN_ICON, LOGOUT_ICON } from './../utils/icon-constants';
+import { getDate, getHours } from './../utils/time.utils';
 import { USER_LOGIN_DESCRIPTION, USER_LOGIN_ACTIVITY, USER_LOGOUT_ACTIVITY, NEW_USER_DESCRIPTION, NEW_USER_ACTIVITY, USER_LOGOUT_DESCRIPTION } from './../utils/event-constants';
 import { createRecord, registryUserActivity } from './../helpers/user.activity.helper';
 import { ITopic } from './topic.models';
@@ -43,14 +44,14 @@ const user: Schema = new Schema({
 
 user.post('save', (result: IUser) => {
     if (result.session_id === undefined) {
-        createRecord(result).then(() => registryUserActivity(result, NEW_USER_ACTIVITY, NEW_USER_DESCRIPTION(result.user_name), 'example'));
+        createRecord(result).then(() => registryUserActivity(result, NEW_USER_ACTIVITY, NEW_USER_DESCRIPTION(result.user_name), START_ICON));
     } else {
         if (result.session_id) {
             registryUserActivity(result, USER_LOGIN_ACTIVITY,
-                USER_LOGIN_DESCRIPTION(result.user_name, getDate(result.last_token_date), getHours(result.last_token_date)), 'example');
+                USER_LOGIN_DESCRIPTION(result.user_name, getDate(result.last_token_date), getHours(result.last_token_date)), LOGIN_ICON);
         } else if (result.session_id == null) {
             registryUserActivity(result, USER_LOGOUT_ACTIVITY,
-                USER_LOGOUT_DESCRIPTION(result.user_name, getDate(result.last_update_date), getHours(result.last_update_date)), 'example');
+                USER_LOGOUT_DESCRIPTION(result.user_name, getDate(result.last_update_date), getHours(result.last_update_date)), LOGOUT_ICON);
         }
     }
 })

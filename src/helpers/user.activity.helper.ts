@@ -18,7 +18,8 @@ export const registryUserActivity = (record: IUser, action: string, actionDesc: 
             icon: actionIcon
         } as IActivity;
 
-        activity.activity.push(userActivity);
-        activity.save();
+        activity.updateOne({ $push: { activity: userActivity } })
+            .then(() => { return })
+            .catch((err) => console.log(err));
     })
 }
