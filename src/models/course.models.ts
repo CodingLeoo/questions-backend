@@ -5,6 +5,7 @@ import { IExam } from './exam.models';
 import { IQuestion } from './question.model';
 
 export interface ICourse extends Document {
+    title : string
     owner: IUser
     topic: ITopic
     description: string
@@ -17,6 +18,7 @@ export interface ICourse extends Document {
 
 
 const course: Schema = new Schema({
+    title : { type : String , required : true},
     owner: {
         type: Schema.Types.ObjectId
         , ref: 'user',

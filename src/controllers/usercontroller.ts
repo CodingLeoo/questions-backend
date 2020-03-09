@@ -1,5 +1,6 @@
-import { INTERNAL_SERVER_ERROR } from 'http-status';
-import { findUser } from './../services/user.service';
+import { ICourse } from './../models/course.models';
+import { INTERNAL_SERVER_ERROR, OK } from 'http-status';
+import { findUser, getEnrolledCourses, getCreatedCourses } from './../services/user.service';
 import { Router, Request, Response } from 'express';
 
 export const UserRouter: Router = Router();
@@ -11,6 +12,25 @@ UserRouter.get('/find', (request: Request, response: Response) => {
         response.json({ data: result });
     }).catch((err: any) => {
         response.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, status: err.toString() })
+    })
+})
+
+UserRouter.get('/enrolled', (request: Request, response: Response) => {
+    const sessionId = request.headers.ssid as string;
+    getEnrolledCourses(sessionId).then((courses: ICourse[]) => {
+        response.status(OK).json(courses);
+    }).catch((err) => {
+        response.status(err.code).json(err);
+    })
+})
+
+
+UserRouter.get('/own', (request: Request, response: Response) => {
+    const sessionId = request.headers.ssid as string;
+    getCreatedCourses(sessionId).then((courses: ICourse[]) => {
+        response.status(OK).json(courses);
+    }).catch((err) => {
+        response.status(err.code).json(err);
     })
 })
 

@@ -1,3 +1,4 @@
+import { Topic } from './../models/topic.models';
 import { Role, IRole } from './../models/role.model';
 import { Router, Request, Response } from 'express';
 import { User, IUser } from './../models/auth.models';
@@ -62,8 +63,9 @@ authRouter.post('/signup', (request: Request, response: Response) => {
                 if (!dbRole) {
                     response.status(UNPROCESSABLE_ENTITY).json({ code: UNPROCESSABLE_ENTITY, status: ROLE_NOT_FOUND_STATUS })
                 } else {
-                    hash(body.password, Math.floor(Math.random() * 10)).then((encryptedValue: string) => {
-                        User.create({ email: body.email, user_name: body.user_name, code: body.code, password: encryptedValue, role: dbRole, topic: body.topic })
+                    hash(body.password, Math.floor(Math.random() * 10)).then(async (encryptedValue: string) => {
+                        const requestedTopic = await Topic.findOne({ numberId: body.topic });
+                        User.create({ email: body.email, user_name: body.user_name, code: body.code, password: encryptedValue, role: dbRole, topic: requestedTopic })
                             .then((user: IUser) => {
                                 response.status(OK).json({
                                     code: OK,
