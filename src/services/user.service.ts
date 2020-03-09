@@ -13,7 +13,7 @@ export const findUser = (sessionId: string) => {
 export const getCreatedCourses = (sessionId: string): Promise<ICourse[]> => {
     return User.findOne({ session_id: sessionId }).then((result: IUser) => {
         return Course.find({ owner: result }, { exams: 0, questions: 0, students: 0, __v: 0 })
-            .populate("topic owner", "-__v  -session_id -courses -_id").then((courses: ICourse[]) => {
+            .populate("topic owner", "-__v  -session_id -courses -_id -password -role -topic").then((courses: ICourse[]) => {
                 if (courses.length > 0) {
                     return courses;
                 }
@@ -26,7 +26,7 @@ export const getCreatedCourses = (sessionId: string): Promise<ICourse[]> => {
 export const getEnrolledCourses = (sessionId: string): Promise<ICourse[]> => {
     return User.findOne({ session_id: sessionId }).then((result: IUser) => {
         return Course.find({ students: result }, { exams: 0, questions: 0, students: 0, __v: 0 })
-            .populate("topic owner", "-__v  -session_id -courses -_id").then((courses: ICourse[]) => {
+            .populate("topic owner", "-__v  -session_id -courses -_id -password -role -topic").then((courses: ICourse[]) => {
                 if (courses.length > 0) {
                     return courses;
                 }

@@ -1,3 +1,4 @@
+import { getDateWithTimeZone } from './../utils/time.utils';
 import { ICourse } from './../models/course.models';
 import { INTERNAL_SERVER_ERROR, OK } from 'http-status';
 import { findUser, getEnrolledCourses, getCreatedCourses } from './../services/user.service';
@@ -9,7 +10,16 @@ export const UserRouter: Router = Router();
 UserRouter.get('/find', (request: Request, response: Response) => {
     const sessionId = request.headers.ssid as string;
     findUser(sessionId).then((result: any) => {
-        response.json({ data: result });
+        response.json({
+            data: {
+                email: result.email,
+                user_name: result.user_name,
+                code: result.code,
+                topic: result.topic,
+                creation_date: getDateWithTimeZone(result.creation_date),
+                last_update_date: getDateWithTimeZone(result.last_update_date)
+            }
+        });
     }).catch((err: any) => {
         response.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, status: err.toString() })
     })
@@ -18,7 +28,7 @@ UserRouter.get('/find', (request: Request, response: Response) => {
 UserRouter.get('/enrolled', (request: Request, response: Response) => {
     const sessionId = request.headers.ssid as string;
     getEnrolledCourses(sessionId).then((courses: ICourse[]) => {
-        response.status(OK).json(courses);
+        response.status(OK).json({ data: courses });
     }).catch((err) => {
         response.status(err.code).json(err);
     })
@@ -28,7 +38,7 @@ UserRouter.get('/enrolled', (request: Request, response: Response) => {
 UserRouter.get('/own', (request: Request, response: Response) => {
     const sessionId = request.headers.ssid as string;
     getCreatedCourses(sessionId).then((courses: ICourse[]) => {
-        response.status(OK).json(courses);
+        response.status(OK).json({ data: courses });
     }).catch((err) => {
         response.status(err.code).json(err);
     })

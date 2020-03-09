@@ -1,5 +1,5 @@
 import { START_ICON, LOGIN_ICON, LOGOUT_ICON } from './../utils/icon-constants';
-import { getDate, getHours } from './../utils/time.utils';
+import { getDate, getHours, getDateWithTimeZone } from './../utils/time.utils';
 import { USER_LOGIN_DESCRIPTION, USER_LOGIN_ACTIVITY, USER_LOGOUT_ACTIVITY, NEW_USER_DESCRIPTION, NEW_USER_ACTIVITY, USER_LOGOUT_DESCRIPTION } from './../utils/event-constants';
 import { createRecord, registryUserActivity } from './../helpers/user.activity.helper';
 import { ITopic } from './topic.models';
@@ -41,6 +41,13 @@ const user: Schema = new Schema({
 
 
 // TRIGGER METHODS
+
+user.post('find', (docs: any) => {
+    docs.forEach((doc: IUser) => {
+        doc.creation_date = getDateWithTimeZone(doc.creation_date);
+        doc.last_update_date = getDateWithTimeZone(doc.last_update_date);
+    })
+})
 
 user.post('save', (result: IUser) => {
     if (result.session_id === undefined) {
