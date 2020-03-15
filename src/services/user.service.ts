@@ -1,6 +1,7 @@
+import { IUserActivity, UserActivity } from './../models/activity.model';
 import { Course, ICourse } from './../models/course.models';
 import { User, IUser } from './../models/auth.models';
-import { NOT_FOUND } from 'http-status';
+import { NOT_FOUND, INTERNAL_SERVER_ERROR } from 'http-status';
 import { NO_COURSES_FOUND } from './../utils/constants';
 import { COURSES_EMPTY_STATE } from './../utils/icon-constants';
 
@@ -32,5 +33,14 @@ export const getEnrolledCourses = (sessionId: string): Promise<ICourse[]> => {
                 }
                 throw { code: NOT_FOUND, status: NO_COURSES_FOUND, image: COURSES_EMPTY_STATE };
             });
+    })
+}
+
+
+export const getActivity = (sessionId: string): Promise<IUserActivity> => {
+    return User.findOne({ session_id: sessionId }).then((result: IUser) => {
+        return UserActivity.findOne({ user: result }, { user: 0 });
+    }).catch((err: any) => {
+        throw { code: INTERNAL_SERVER_ERROR, status: err.toString() }
     })
 }

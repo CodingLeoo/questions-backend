@@ -1,8 +1,7 @@
 /** ACTIVITY EVENTS */
 export const START_ICON = "https://img.icons8.com/dusk/48/000000/pixel-star.png";
 export const LOGIN_ICON = "https://img.icons8.com/plasticine/48/000000/enter-2.png";
-export const LOGOUT_ICON = "https://img.icons8.com/color/48/000000/time-out.png";
-
+export const LOGOUT_ICON = "https://img.icons8.com/officel/80/000000/shutdown.png";
 
 
 /** EMPTY STATE ICONS */

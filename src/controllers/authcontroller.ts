@@ -44,7 +44,7 @@ authRouter.post('/login', (request: Request, response: Response) => {
                     }
                 });
             }).catch(() => {
-                response.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, desc: INTERNAL_SERVER_ERROR_STATUS });
+                response.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, status: INTERNAL_SERVER_ERROR_STATUS });
             })
         })
     }).catch((err) => {
@@ -74,11 +74,11 @@ authRouter.post('/signup', (request: Request, response: Response) => {
                                 });
                             });
                     }).catch((err) => {
-                        response.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, desc: err.toString() });
+                        response.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, status: err.toString() });
                     });
                 }
             }).catch((err) => {
-                response.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, desc: err.toString() });
+                response.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, status: err.toString() });
             });
         }
     });
@@ -89,7 +89,7 @@ authRouter.get('/refresh', RequireAuth, (request: Request, response: Response) =
     refreshToken(token).then((refreshedToken: string) => {
         response.status(OK).json({ bearer: refreshedToken })
     }).catch((err) => {
-        response.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, desc: err.toString() });
+        response.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, status: err.toString() });
     })
 })
 
@@ -98,7 +98,7 @@ authRouter.delete('/logout', RequireAuth, (request: Request, response: Response)
     invalidateToken(token).then(() => {
         response.status(OK).end();
     }).catch((err) => {
-        response.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, desc: err.toString() });
+        response.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, status: err.toString() });
     })
 })
 

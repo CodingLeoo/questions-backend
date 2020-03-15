@@ -15,7 +15,8 @@ export const registryUserActivity = (record: IUser, action: string, actionDesc: 
         const userActivity = {
             activity: action,
             description: actionDesc,
-            icon: actionIcon
+            icon: actionIcon,
+            activity_date : new Date()
         } as IActivity;
 
         activity.updateOne({ $push: { activity: userActivity } })

@@ -1,7 +1,8 @@
+import { IUserActivity } from './../models/activity.model';
 import { getDateWithTimeZone } from './../utils/time.utils';
 import { ICourse } from './../models/course.models';
 import { INTERNAL_SERVER_ERROR, OK } from 'http-status';
-import { findUser, getEnrolledCourses, getCreatedCourses } from './../services/user.service';
+import { findUser, getEnrolledCourses, getCreatedCourses, getActivity } from './../services/user.service';
 import { Router, Request, Response } from 'express';
 
 export const UserRouter: Router = Router();
@@ -25,26 +26,6 @@ UserRouter.get('/find', (request: Request, response: Response) => {
     })
 })
 
-UserRouter.get('/enrolled', (request: Request, response: Response) => {
-    const sessionId = request.headers.ssid as string;
-    getEnrolledCourses(sessionId).then((courses: ICourse[]) => {
-        response.status(OK).json({ data: courses });
-    }).catch((err) => {
-        response.status(err.code).json(err);
-    })
-})
-
-
-UserRouter.get('/own', (request: Request, response: Response) => {
-    const sessionId = request.headers.ssid as string;
-    getCreatedCourses(sessionId).then((courses: ICourse[]) => {
-        response.status(OK).json({ data: courses });
-    }).catch((err) => {
-        response.status(err.code).json(err);
-    })
-})
-
-
 UserRouter.put('/update', (request: Request, response: Response) => {
     const body = request.body;
     console.log(body);
@@ -64,4 +45,33 @@ UserRouter.delete('/delete', (request: Request, response: Response) => {
     const email = request.query.email;
     console.log(`user email to delete : ${email}`);
     response.json({ status: 'exitoso' });
+})
+
+UserRouter.get('/enrolled', (request: Request, response: Response) => {
+    const sessionId = request.headers.ssid as string;
+    getEnrolledCourses(sessionId).then((courses: ICourse[]) => {
+        response.status(OK).json({ data: courses });
+    }).catch((err) => {
+        response.status(err.code).json(err);
+    })
+})
+
+
+UserRouter.get('/own', (request: Request, response: Response) => {
+    const sessionId = request.headers.ssid as string;
+    getCreatedCourses(sessionId).then((courses: ICourse[]) => {
+        response.status(OK).json({ data: courses });
+    }).catch((err) => {
+        response.status(err.code).json(err);
+    })
+})
+
+UserRouter.get('/activity', (request: Request, response: Response) => {
+    const sessionId = request.headers.ssid as string;
+    getActivity(sessionId).then((activity: IUserActivity) => {
+        response.status(OK).json({ data: activity.activity })
+    }).catch((err) => {
+        response.status(err.code).json(err);
+    })
+
 })
