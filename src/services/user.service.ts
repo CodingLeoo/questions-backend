@@ -1,6 +1,6 @@
 import { Course, ICourse } from './../models/course.models';
 import { User, IUser } from './../models/auth.models';
-import { ACCEPTED } from 'http-status';
+import { NOT_FOUND } from 'http-status';
 import { NO_COURSES_FOUND } from './../utils/constants';
 import { COURSES_EMPTY_STATE } from './../utils/icon-constants';
 
@@ -17,7 +17,7 @@ export const getCreatedCourses = (sessionId: string): Promise<ICourse[]> => {
                 if (courses.length > 0) {
                     return courses;
                 }
-                throw { code: ACCEPTED, message: NO_COURSES_FOUND, image: COURSES_EMPTY_STATE };
+                throw { code: NOT_FOUND, status: NO_COURSES_FOUND, image: COURSES_EMPTY_STATE };
             });
     })
 }
@@ -30,7 +30,7 @@ export const getEnrolledCourses = (sessionId: string): Promise<ICourse[]> => {
                 if (courses.length > 0) {
                     return courses;
                 }
-                throw { code: ACCEPTED, message: NO_COURSES_FOUND, image: COURSES_EMPTY_STATE };
+                throw { code: NOT_FOUND, status: NO_COURSES_FOUND, image: COURSES_EMPTY_STATE };
             });
     })
 }

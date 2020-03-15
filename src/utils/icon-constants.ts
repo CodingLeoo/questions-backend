@@ -6,4 +6,4 @@ export const LOGOUT_ICON = "https://img.icons8.com/color/48/000000/time-out.png"
 
 
 /** EMPTY STATE ICONS */
-export const COURSES_EMPTY_STATE = "https://img.icons8.com/clouds/400/000000/jake.png";
+export const COURSES_EMPTY_STATE = "https://img.icons8.com/bubbles/400/000000/jake.png";
