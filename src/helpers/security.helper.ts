@@ -20,6 +20,7 @@ export function refreshToken(token: string): Promise<string> {
         verifyToken(token).then((user: IUser) => {
             user.session_id = v4();
             user.last_token_date = new Date();
+            user.refresh_count += 1;
             user.save();
 
             generateToken({ session_id: user.session_id, email: user.email, last_bearer_date: user.last_token_date }).then((refereshedToken: string) => {
@@ -45,7 +46,7 @@ export function verifyToken(token: string): Promise<IUser> {
                 }
                 reject(SESSION_NOT_FOUND);
 
-            }).catch((fail : any) => {
+            }).catch((fail: any) => {
                 console.log(fail);
                 reject(fail);
             })
@@ -58,9 +59,10 @@ export function invalidateToken(token: string): Promise<void> {
     return new Promise((resolve, reject) => {
         verifyToken(token).then((user: IUser) => {
             user.session_id = null;
+            user.refresh_count = 0;
             user.save();
             resolve();
-        }).catch((err : any) => {
+        }).catch((err: any) => {
             reject(err);
         })
     })

@@ -54,4 +54,9 @@ course.post('find', (docs: any) => {
     })
 })
 
+course.post('findOne', (doc: ICourse) => {
+    doc.create_date = getDateWithTimeZone(doc.create_date);
+    doc.last_update_date = getDateWithTimeZone(doc.last_update_date);
+})
+
 export const Course: Model<ICourse> = model<ICourse>('course', course);

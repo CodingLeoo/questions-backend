@@ -19,6 +19,7 @@ export interface IUser extends Document {
     session_id?: string
     creation_date?: Date
     last_update_date?: Date
+    refresh_count: number
 }
 
 const user: Schema = new Schema({
@@ -37,6 +38,7 @@ const user: Schema = new Schema({
         ref: 'topic',
     },
     last_token_date: Date,
+    refresh_count: Number,
     session_id: String
 }, { timestamps: { createdAt: 'creation_date', updatedAt: 'last_update_date' } });
 
@@ -54,7 +56,7 @@ user.post('save', (result: IUser) => {
     if (result.session_id === undefined) {
         createRecord(result).then(() => registryUserActivity(result, NEW_USER_ACTIVITY, NEW_USER_DESCRIPTION(firstName(result.user_name)), START_ICON));
     } else {
-        if (result.session_id) {
+        if (result.session_id && result.refresh_count === 0) {
             registryUserActivity(result, USER_LOGIN_ACTIVITY,
                 USER_LOGIN_DESCRIPTION(firstName(result.user_name)), LOGIN_ICON);
         } else if (result.session_id == null) {

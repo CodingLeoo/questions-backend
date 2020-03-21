@@ -1,3 +1,4 @@
+import { getDateWithTimeZone } from './../utils/time.utils';
 import { Document, Model, model, Schema } from 'mongoose';
 import { ICourse } from './course.models';
 
@@ -19,6 +20,20 @@ const topic: Schema = new Schema({
         ref: 'course'
     }]
 }, { timestamps: { createdAt: 'create_date', updatedAt: 'last_update_date' } });
+
+// TRIGGER FUNCTIONS
+
+topic.post('find', (docs: any) => {
+    docs.forEach((doc: ICourse) => {
+        doc.create_date = getDateWithTimeZone(doc.create_date);
+        doc.last_update_date = getDateWithTimeZone(doc.last_update_date);
+    })
+})
+
+topic.post('findOne', (doc: ITopic) => {
+    doc.create_date = getDateWithTimeZone(doc.create_date);
+    doc.last_update_date = getDateWithTimeZone(doc.last_update_date);
+})
 
 
 export const Topic: Model<ITopic> = model<ITopic>('topic', topic);

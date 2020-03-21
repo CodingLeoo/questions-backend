@@ -1,3 +1,4 @@
+import { TopicRouter } from './controllers/topiccontroller';
 import { CoursesRouter } from './controllers/coursecontroller';
 import { UserRouter } from './controllers/usercontroller';
 import express from "express";
@@ -21,6 +22,7 @@ app.all('/api/*', RequireAuth, isValidToken);
 app.use('/authentication/v1', authRouter);
 app.use('/api/user/v1', UserRouter);
 app.use('/api/courses/v1', CoursesRouter);
+app.use('/api/topic/v1' , TopicRouter);
 
 app.listen(port, () => {
     console.log(`app is up on port ${port}`);

@@ -15,7 +15,7 @@ export const authRouter: Router = Router();
 authRouter.post('/login', (request: Request, response: Response) => {
     const body = request.body;
 
-    User.findOne({ email: body.email }).populate("role", "-_id -_v").then((user: IUser) => {
+    User.findOne({ email: body.email }).populate("role", "-_id -_ -refresh_count").then((user: IUser) => {
         if (!user) {
             throw new Error(USER_NOT_FOUND_STATUS);
         }
@@ -65,7 +65,7 @@ authRouter.post('/signup', (request: Request, response: Response) => {
                 } else {
                     hash(body.password, Math.floor(Math.random() * 10)).then(async (encryptedValue: string) => {
                         const requestedTopic = await Topic.findOne({ numberId: body.topic });
-                        User.create({ email: body.email, user_name: body.user_name, code: body.code, password: encryptedValue, role: dbRole, topic: requestedTopic })
+                        User.create({ email: body.email, user_name: body.user_name, code: body.code, password: encryptedValue, role: dbRole, topic: requestedTopic , refresh_count : 0 })
                             .then((user: IUser) => {
                                 response.status(OK).json({
                                     code: OK,
