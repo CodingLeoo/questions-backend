@@ -1,5 +1,7 @@
+import { ICourse } from './../models/course.models';
+import { IUser } from './../models/auth.models';
 import { OK } from 'http-status';
-import { createCourse, enrollCourse } from './../services/course.service';
+import { createCourse, enrollCourse, getStudents, getDetail } from './../services/course.service';
 import { Router, Request, Response } from 'express';
 
 
@@ -9,11 +11,24 @@ CoursesRouter.get('/all', (response: Response) => {
     response.json({ status: 'exitoso' });
 })
 
-// TODO : add detail method for get course detail
+
 CoursesRouter.get('/:course/detail', (request: Request, response: Response) => {
     const courseId = request.params.course;
-    console.log(`course requested : ${courseId}`);
-    response.json({ status: 'exitoso' });
+    getDetail(courseId).then((course: ICourse) => {
+        response.status(OK).json({ data: course });
+    }).catch((err) => {
+        response.status(err.code).json(err);
+    })
+})
+
+
+CoursesRouter.get('/:course/students', (request: Request, response: Response) => {
+    const courseId = request.params.course;
+    getStudents(courseId).then((students: IUser[]) => {
+        response.status(OK).json({ data: students });
+    }).catch((err) => {
+        response.status(err.code).json(err);
+    })
 })
 
 

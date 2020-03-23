@@ -1,12 +1,12 @@
+import { ISection } from './section.model';
 import { Document, Model, model, Schema } from 'mongoose';
 import { ICourse } from './course.models';
-import { IQuestion } from './question.model';
 
 export interface IExam extends Document {
     course: ICourse
     title: string
     minimun_approve_questions: number
-    questions: IQuestion[]
+    sections: ISection[]
 }
 
 
@@ -18,9 +18,9 @@ const exam: Schema = new Schema({
     },
     title: { type: String, required: true },
     minimun_approve_questions: { type: Number, required: true },
-    questions: [{
+    sections: [{
         type: Schema.Types.ObjectId,
-        ref: 'question'
+        ref: 'section'
     }]
 });
 

@@ -1,9 +1,9 @@
-import { COURSE_ENROLLMENT_ICON, COURSE_CREATION_ICON } from './../utils/icon-constants';
+import { COURSE_ENROLLMENT_ICON, COURSE_CREATION_ICON, STUDENTS_EMPTY_STATE } from './../utils/icon-constants';
 import { firstName } from './../utils/string.utils';
 import { USER_COURSE_ENROLL, USER_COURSE_ENROLLMENT_DESCRIPTION, USER_COURSE_CREATION_DESCRIPTION, USER_COURSE_CREATION } from './../utils/event-constants';
 import { registryUserActivity } from './../helpers/user.activity.helper';
-import { OK_STATUS, UNAUTHORIZED_STATUS, COURSE_NOT_FOUND } from './../utils/constants';
-import { OK, UNAUTHORIZED, NOT_FOUND } from 'http-status';
+import { OK_STATUS, UNAUTHORIZED_STATUS, COURSE_NOT_FOUND, NO_STUDENTS_FOUND } from './../utils/constants';
+import { OK, UNAUTHORIZED, NOT_FOUND, INTERNAL_SERVER_ERROR } from 'http-status';
 import { Topic } from './../models/topic.models';
 import { ICourse, Course } from './../models/course.models';
 import { User, IUser } from './../models/auth.models';
@@ -51,5 +51,28 @@ export const enrollCourse = (sessionId: string, id: string): Promise<any> => {
                 }
             });
         })
+    })
+}
+
+
+export const getStudents = (id: string): Promise<IUser[]> => {
+    return Course.findOne({ _id: id }).populate('students', '-_id -__v -session_id -refresh_count -password -topic -role').then((course: ICourse) => {
+        if (!course) {
+            throw { code: NOT_FOUND, message: COURSE_NOT_FOUND };
+        } else if (!course.students) {
+            throw { code: NOT_FOUND, message: NO_STUDENTS_FOUND, image: STUDENTS_EMPTY_STATE };
+        }
+        return course.students;
+    })
+}
+
+export const getDetail = (id: string): Promise<ICourse> => {
+    return Course.findOne({ _id: id }).populate('exams questions owner', '-_id -__v').then((result: ICourse) => {
+        if (!result) {
+            throw { code: NOT_FOUND, message: COURSE_NOT_FOUND };
+        }
+        return result;
+    }).catch((err: any) => {
+        throw { code: INTERNAL_SERVER_ERROR, status: err.toString() };
     })
 }

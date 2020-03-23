@@ -1,47 +1,42 @@
-import { Document, Model, model, Schema } from 'mongoose';
 import { ICourse } from './course.models';
+import { Document, Model, model, Schema } from 'mongoose';
 
 export interface IQuestion extends Document {
-    course: ICourse
-    detail: IQuestionDetail
+    course: ICourse;
+    question: string;
+    options?: IOption[];
+    answer: IOption;
 }
 
-
-export interface IQuestionDetail extends Document {
-    type: number
-    context: string
-    question: string
-    options: any[]
-    answers: any[]
+export interface IOption {
+    order: string;
+    image?: Buffer;
+    text: string;
 }
-
 
 
 const question: Schema = new Schema({
-    course: {
+    section: {
         type: Schema.Types.ObjectId,
         ref: 'course',
         required: true
     },
-    detail: {
-        type: Schema.Types.ObjectId,
-        ref: 'questionDetail',
+    question: {
+        type: String,
+        required: true
+    },
+    options: [
+        {
+            type: Schema.Types.Mixed,
+            required: false
+        }
+    ],
+    answer: {
+        type: Schema.Types.Mixed,
         required: true
     }
 });
 
 
-const questionDetail: Schema = new Schema({
-    type: { type: Number, required: true },
-    context: { type: String, required: true },
-    question: { type: String, required: true },
-    options: [{ type: Object, required: true }],
-    answers: [{ type: Object, required: true }]
-})
+export const Question: Model<IQuestion> = model<IQuestion>('question', question);
 
-
-const Question: Model<IQuestion> = model<IQuestion>('question', question);
-const QuestionDetail: Model<IQuestionDetail> = model<IQuestionDetail>('questionDetail', questionDetail);
-
-
-export { Question, QuestionDetail };

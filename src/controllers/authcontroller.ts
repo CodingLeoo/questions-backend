@@ -48,7 +48,7 @@ authRouter.post('/login', (request: Request, response: Response) => {
             })
         })
     }).catch((err) => {
-        response.status(NOT_FOUND).json({ code: NOT_FOUND, status: err.message });
+        response.status(NOT_FOUND).json({ code: NOT_FOUND, status: err.toString() });
     })
 })
 
@@ -64,8 +64,11 @@ authRouter.post('/signup', (request: Request, response: Response) => {
                     response.status(UNPROCESSABLE_ENTITY).json({ code: UNPROCESSABLE_ENTITY, status: ROLE_NOT_FOUND_STATUS })
                 } else {
                     hash(body.password, Math.floor(Math.random() * 10)).then(async (encryptedValue: string) => {
-                        const requestedTopic = await Topic.findOne({ numberId: body.topic });
-                        User.create({ email: body.email, user_name: body.user_name, code: body.code, password: encryptedValue, role: dbRole, topic: requestedTopic , refresh_count : 0 })
+                        let requestedTopic = null;
+                        if (body.topic) {
+                            requestedTopic = await Topic.findOne({ numberId: body.topic });
+                        }
+                        User.create({ email: body.email, user_name: body.user_name, code: body.code, password: encryptedValue, role: dbRole, topic: requestedTopic, refresh_count: 0 })
                             .then((user: IUser) => {
                                 response.status(OK).json({
                                     code: OK,
@@ -74,10 +77,12 @@ authRouter.post('/signup', (request: Request, response: Response) => {
                                 });
                             });
                     }).catch((err) => {
+                        console.log(err);
                         response.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, status: err.toString() });
                     });
                 }
             }).catch((err) => {
+                console.log(err);
                 response.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, status: err.toString() });
             });
         }

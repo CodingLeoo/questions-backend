@@ -11,7 +11,7 @@ export interface IUser extends Document {
     user_name: string
     email: string
     code: number
-    photoURL?: string
+    photo?: Buffer
     password: string
     role: IRole,
     topic?: ITopic
@@ -19,14 +19,14 @@ export interface IUser extends Document {
     session_id?: string
     creation_date?: Date
     last_update_date?: Date
-    refresh_count: number
+    refresh_count?: number
 }
 
 const user: Schema = new Schema({
     email: { type: String, required: true },
     user_name: { type: String, required: true },
     code: { type: Number, required: true },
-    photoURL: String,
+    photo: Buffer,
     password: { type: String, required: true },
     role: {
         type: Schema.Types.ObjectId,

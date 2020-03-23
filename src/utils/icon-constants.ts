@@ -8,3 +8,4 @@ export const COURSE_ENROLLMENT_ICON = "https://img.icons8.com/color/96/000000/in
 
 /** EMPTY STATE ICONS */
 export const COURSES_EMPTY_STATE = "https://img.icons8.com/bubbles/400/000000/jake.png";
+export const STUDENTS_EMPTY_STATE = "https://img.icons8.com/plasticine/100/000000/sad.png";
