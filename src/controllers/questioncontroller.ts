@@ -1,18 +1,17 @@
 import { OK_STATUS } from './../utils/constants';
 import { OK } from 'http-status';
-import { IQuestion, IOption } from './../models/question.model';
-import { createQuestion, validateQuestion, findQuestion, updateQuestion, deleteQuestion, addOptionImage } from './../services/question.service';
+import { IQuestion } from './../models/question.model';
+import { createQuestion, validateQuestion, findQuestion, updateQuestion, deleteQuestion, addOptionImage, createSharedOption } from './../services/question.service';
 import { Router, Request, Response } from 'express';
 
 
 export const QuestionRouter: Router = Router();
 
 
-
-QuestionRouter.post('/:courseid/create', (request: Request, response: Response) => {
-    const courseId = request.params.courseid;
+QuestionRouter.post('/:sectionId/create', (request: Request, response: Response) => {
+    const sectionId = request.params.sectionId;
     const body = request.body;
-    createQuestion(body, courseId).then((result: IQuestion) => {
+    createQuestion(body, sectionId).then((result: IQuestion) => {
         response.status(OK).json({ code: OK, status: OK_STATUS, additional_info: result });
     }).catch((err) => {
         console.log(err);
@@ -62,6 +61,17 @@ QuestionRouter.delete('/:questionid/delete', (request: Request, response: Respon
     })
 })
 
+
+QuestionRouter.post('/option/:sectionid/shared', (request: Request, response: Response) => {
+    const sectionId = request.params.sectionid;
+    const body = request.body;
+
+    createSharedOption(body, sectionId).then((result: any) => {
+        response.status(OK).json(result);
+    }).catch((err) => {
+        response.status(err.code).json(err);
+    })
+})
 
 QuestionRouter.patch('/option/:optionid/image', (request: Request, response: Response) => {
     const optionId = request.params.optionid;

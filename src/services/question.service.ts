@@ -1,122 +1,158 @@
-import { COURSE_NOT_FOUND, QUESTION_VALIDATED_OK, QUESTION_VALIDATED_FAIL, QUESTION_NOT_FOUND } from './../utils/constants';
+import { Section } from './../models/section.model';
+import { COURSE_NOT_FOUND, QUESTION_VALIDATED_OK, QUESTION_VALIDATED_FAIL, QUESTION_NOT_FOUND, OPTION_NOT_FOUND, OK_STATUS } from './../utils/constants';
 import { NOT_FOUND, INTERNAL_SERVER_ERROR, OK } from 'http-status';
-import { Course, ICourse } from './../models/course.models';
 import { IQuestion, Question, Option, IOption } from './../models/question.model';
 
 
-export const createQuestion = (request: any, courseId: string): Promise<any> => {
-    return Course.findOne({ _id: courseId }).then((dbCourse: ICourse) => {
-        if (!dbCourse) {
-            throw { code: NOT_FOUND, status: COURSE_NOT_FOUND }
+export const createQuestion = async (request: any, sectionId: string): Promise<any> => {
+    try {
+        const dbSection = await Section.findOne({ _id: sectionId });
+        if (!dbSection) {
+            throw { code: NOT_FOUND, status: COURSE_NOT_FOUND };
         }
-        return Question.create({
-            course: dbCourse,
+        const question = await Question.create({
+            section: dbSection,
             question: request.question,
-        }).then((question: IQuestion) => {
-            return dbCourse.updateOne({ $push: { questions: question } }).then(() => {
-                request.options.forEach((option: any) => {
-                    option.question = question;
-                })
-                return Option.create(...request.options).then((opts: any) => {
-                    const ans = opts.find((opt: any) => opt.answer);
-                    return question.updateOne({ $push: { options: [...opts] }, $set: { answer: ans } });
-                });
-            });
-        })
-    }).catch((err) => {
+        });
+        if (!request.example)
+            await dbSection.updateOne({ $push: { questions: question } });
+
+        request.options.forEach((option: any) => {
+            if (option.image) {
+                option.buffer = new Buffer(option.image, 'base64');
+                option.image = undefined;
+            }
+            option.question = question;
+            option.section = sectionId;
+        });
+        const opts: any = await Option.create(...request.options);
+        const ans = opts.find((opt: any) => opt.answer);
+        const result = await question.updateOne({ $push: { options: [...opts] }, $set: { answer: ans } });
+        if (result.n)
+            return { result_id: question._id, option_ids: opts.map((option: IOption) => option._id) };
+    }
+    catch (err) {
         if (err.code)
             throw err;
         else
             throw { code: INTERNAL_SERVER_ERROR, status: err.toString() };
-    })
+    }
 }
 
-export const validateQuestion = (questionId: string, optionId: string): Promise<{ code: number, status: string }> => {
-    return Question.findById(questionId).populate('answer').then((result: IQuestion) => {
+export const validateQuestion = async (questionId: string, optionId: string): Promise<{ code: number, status: string }> => {
+    try {
+        const result = await Question.findById(questionId).populate('answer');
         if (!result) {
-            throw { code: NOT_FOUND, status: QUESTION_NOT_FOUND }
+            throw { code: NOT_FOUND, status: QUESTION_NOT_FOUND };
         }
 
         if (result.answer._id.toString() === optionId) {
-            return { code: OK, status: QUESTION_VALIDATED_OK }
-        } else {
-            return { code: OK, status: QUESTION_VALIDATED_FAIL }
+            return { code: OK, status: QUESTION_VALIDATED_OK };
         }
-    }).catch((err) => {
+        else {
+            return { code: OK, status: QUESTION_VALIDATED_FAIL };
+        }
+    }
+    catch (err) {
         if (err.code)
             throw err;
         else
             throw { code: INTERNAL_SERVER_ERROR, status: err.toString() };
-    })
+    }
 }
 
 
-export const findQuestion = (questionId: string): Promise<IQuestion> => {
-    return Question.findById(questionId, { __v: 0, course: 0, answer: 0 }).populate("options", "-answer -question -__v").then((result: IQuestion) => {
+export const findQuestion = async (questionId: string): Promise<IQuestion> => {
+    try {
+        const result = await Question.findById(questionId, { __v: 0, course: 0, answer: 0 }).populate("options", "-answer -question -__v");
         if (!result) {
-            throw { code: NOT_FOUND, status: QUESTION_NOT_FOUND }
+            throw { code: NOT_FOUND, status: QUESTION_NOT_FOUND };
         }
         return result;
-    }).catch((err) => {
+    }
+    catch (err) {
         if (err.code)
             throw err;
         else
             throw { code: INTERNAL_SERVER_ERROR, status: err.toString() };
-    })
+    }
 }
 
 
-export const updateQuestion = (questionId: string, request: any): Promise<void> => {
-    return Question.findById(questionId).populate("answer").then((result: IQuestion) => {
+export const updateQuestion = async (questionId: string, request: any): Promise<void> => {
+    try {
+        const result = await Question.findById(questionId).populate("answer");
         if (!result) {
-            throw { code: NOT_FOUND, status: QUESTION_NOT_FOUND }
+            throw { code: NOT_FOUND, status: QUESTION_NOT_FOUND };
         }
-
         request.options.forEach(async (option: any) => {
             if (option.updated) {
-                await Option.update({ _id: option._id }, { $set: { text: option.text, answer: option.answer } })
+                await Option.update({ _id: option._id }, { $set: { text: option.text, answer: option.answer } });
             }
         });
-
         const answerRequest = request.options.find((option: any) => option.answer);
-
         if (result.answer._id.toString() !== answerRequest._id) {
             result.answer.answer = undefined;
             result.answer.save();
             return result.updateOne({ $set: { answer: answerRequest._id, question: request.question } });
-        } else {
-            return result.updateOne({ $set: { question: request.question } });;
         }
-    }).catch((err) => {
+        else {
+            return result.updateOne({ $set: { question: request.question } });
+            ;
+        }
+    }
+    catch (err) {
         if (err.code)
             throw err;
         else
             throw { code: INTERNAL_SERVER_ERROR, status: err.toString() };
-    })
+    }
 }
 
 
-export const deleteQuestion = (questionId: string): Promise<void> => {
-    return Question.findOneAndDelete({ _id: questionId }).catch((err) => {
+export const deleteQuestion = async (questionId: string): Promise<void> => {
+    try {
+        Question.findOneAndDelete({ _id: questionId });
+    }
+    catch (err) {
         if (err.code)
             throw err;
         else
             throw { code: INTERNAL_SERVER_ERROR, status: err.toString() };
-    });
+    }
 }
 
-
-export const addOptionImage = (optionId: string, value: string): Promise<any> => {
-    return Option.findById(optionId).then((result: IOption) => {
+export const createSharedOption = async (request: any, sectionId: string) => {
+    try {
+        const result = await Section.findById(sectionId);
         if (!result) {
-            throw { code: NOT_FOUND, status: QUESTION_NOT_FOUND }
+            throw { code: NOT_FOUND, status: OPTION_NOT_FOUND };
+        }
+        const option = await Option.create({ text: request.text, answer: request.answer, section: result });
+        return { code: OK, status: OK_STATUS, additional_information: { result_id: option._id } };
+    }
+    catch (err) {
+        if (err.code)
+            throw err;
+        else
+            throw { code: INTERNAL_SERVER_ERROR, status: err.toString() };
+    }
+}
+
+
+export const addOptionImage = async (optionId: string, value: string): Promise<any> => {
+    try {
+        const result = await Option.findById(optionId);
+        if (!result) {
+            throw { code: NOT_FOUND, status: QUESTION_NOT_FOUND };
         }
         const data = new Buffer(value, 'base64');
         return result.updateOne({ $set: { buffer: data } });
-    }).catch((err) => {
+    }
+    catch (err) {
         if (err.code)
             throw err;
         else
             throw { code: INTERNAL_SERVER_ERROR, status: err.toString() };
-    });
+    }
 }

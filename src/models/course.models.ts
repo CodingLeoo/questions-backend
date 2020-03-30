@@ -1,9 +1,9 @@
+import { ISection } from './section.model';
 import { getDateWithTimeZone } from './../utils/time.utils';
 import { IUser } from './auth.models';
 import { Document, Model, model, Schema } from 'mongoose';
 import { ITopic } from './topic.models';
 import { IExam } from './exam.models';
-import { IQuestion } from './question.model';
 
 export interface ICourse extends Document {
     title: string
@@ -11,7 +11,7 @@ export interface ICourse extends Document {
     topic: ITopic
     description: string
     exams?: IExam[]
-    questions?: IQuestion[]
+    sections?: ISection[]
     students?: IUser[]
     create_date: Date,
     last_update_date: Date
@@ -35,9 +35,9 @@ const course: Schema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'exam'
     }],
-    questions: [{
+    sections : [{
         type: Schema.Types.ObjectId,
-        ref: 'question'
+        ref: 'section'
     }],
     students: [{
         type: Schema.Types.ObjectId,

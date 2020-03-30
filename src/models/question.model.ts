@@ -1,17 +1,18 @@
+import { ISection, Section } from './section.model';
 import { QUESTION_NOT_FOUND } from './../utils/constants';
-import { ICourse, Course } from './course.models';
 import { Document, Model, model, Schema } from 'mongoose';
 import { NOT_FOUND } from 'http-status';
 
 export interface IQuestion extends Document {
-    course: ICourse;
+    section: ISection;
     question: string;
     options?: IOption[];
     answer?: IOption;
 }
 
 export interface IOption extends Document {
-    question: IQuestion;
+    section?: ISection;
+    question?: IQuestion;
     image?: string;
     buffer?: Buffer;
     text: string;
@@ -20,9 +21,9 @@ export interface IOption extends Document {
 
 
 const question: Schema = new Schema({
-    course: {
+    section: {
         type: Schema.Types.ObjectId,
-        ref: 'course',
+        ref: 'section',
         required: true
     },
     question: {
@@ -43,10 +44,13 @@ const question: Schema = new Schema({
 
 
 const option: Schema = new Schema({
+    section: {
+        type: Schema.Types.ObjectId,
+        ref: 'section',
+    },
     question: {
         type: Schema.Types.ObjectId,
         ref: 'question',
-        required: true,
     },
     image: { type: String },
     buffer: { type: Buffer },
@@ -62,8 +66,8 @@ question.post('findOneAndDelete', (result: IQuestion, next: any) => {
         next(err);
     }
 
-    Course.findById(result.course).then((course: ICourse) => {
-        course.updateOne({ $pull: { questions: result._id } }).then(() => {
+    Section.findById(result.section).then((section: ISection) => {
+        section.updateOne({ $pull: { questions: result._id } }).then(() => {
             Option.deleteMany({ question: result }).then(() => {
                 next();
             })

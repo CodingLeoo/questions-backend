@@ -1,3 +1,4 @@
+import { SectionRouter } from './controllers/sectioncontroller';
 import { TopicRouter } from './controllers/topiccontroller';
 import { CoursesRouter } from './controllers/coursecontroller';
 import { UserRouter } from './controllers/usercontroller';
@@ -25,6 +26,7 @@ app.use('/api/user/v1', UserRouter);
 app.use('/api/courses/v1', CoursesRouter);
 app.use('/api/topic/v1', TopicRouter);
 app.use('/api/question/v1', QuestionRouter);
+app.use('/api/section/v1' , SectionRouter);
 
 app.listen(port, () => {
     console.log(`app is up on port ${port}`);
