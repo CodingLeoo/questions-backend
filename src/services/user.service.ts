@@ -13,9 +13,9 @@ export const findUser = (sessionId: string) => {
 
 
 export const getCreatedCourses = async (sessionId: string): Promise<ICourse[]> => {
-    const result = await User.findOne({ session_id: sessionId });
+    const result = await User.findOne({ session_id: sessionId } , { photo : 0});
     const courses = await Course.find({ owner: result }, { exams: 0, questions: 0, students: 0, __v: 0 })
-        .populate("topic owner", "-__v  -session_id -refresh_count -last_token_date -courses -_id -password -role -topic");
+        .populate("topic owner", "-__v  -session_id -refresh_count -last_token_date -courses -_id -password -role -topic -photo");
     if (courses.length > 0) {
         return courses;
     }

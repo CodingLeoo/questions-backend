@@ -1,5 +1,5 @@
-import { COURSE_NOT_FOUND, OK_STATUS, SECTION_NOT_FOUND } from './../utils/constants';
-import { NOT_FOUND, OK, INTERNAL_SERVER_ERROR } from 'http-status';
+import { COURSE_NOT_FOUND, OK_STATUS, SECTION_NOT_FOUND, UNAUTHORIZED_STATUS } from './../utils/constants';
+import { NOT_FOUND, OK, INTERNAL_SERVER_ERROR, UNAUTHORIZED } from 'http-status';
 import { Course } from './../models/course.models';
 import { Section, ISection } from './../models/section.model';
 
@@ -9,7 +9,8 @@ const getAsBuffer = (base64String: string) => {
     return undefined;
 }
 
-export const findSection = async (sectionId: string): Promise<ISection> => {
+export const findSection = async (sectionId: string, access: string): Promise<ISection> => {
+    const param = access === 'true' ? '' : '-answer';
     try {
         const section = Section.findOne({ _id: sectionId }, { __v: 0 }).populate({
             path: 'questions example',
@@ -17,17 +18,17 @@ export const findSection = async (sectionId: string): Promise<ISection> => {
             populate: [{
                 path: 'options',
                 model: 'option',
-                select: '-__v -question -section'
+                select: `-__v -question -section ${param}`
             }, {
                 path: 'answer',
                 model: 'option',
                 select: ' -__v -question -section'
             }],
-            select: '-section -__v'
+            select: `-section -__v ${param}`
         }).populate({
             path: 'sharedOptions',
             model: 'option',
-            select: '-__v -question -section'
+            select: `-__v -question -section ${param}`
         })
 
         if (!section) {
@@ -51,6 +52,7 @@ export const createSection = async (request: any, courseId: string): Promise<{ c
             throw { code: NOT_FOUND, status: COURSE_NOT_FOUND };
         const result = await Section.create({
             course: courseResult,
+            title: request.title,
             type: request.type,
             context: request.context,
             buffer: getAsBuffer(request.image)
@@ -99,17 +101,23 @@ export const addSharedOption = async (optionId: string, sectionId: string): Prom
     }
 }
 
-export const updateSection = async (request: any, sectionId: string): Promise<{ code: number, status: string, additional_information?: any }> => {
+export const updateSection = async (request: any, sectionId: string, access: string): Promise<{ code: number, status: string, additional_information?: any }> => {
     if (request.image) {
         request.buffer = getAsBuffer(request.image);
         request.image = undefined;
     }
     try {
+        if (access !== 'true')
+            throw { code: UNAUTHORIZED, status: UNAUTHORIZED_STATUS };
+
         const result = await Section.update({ _id: sectionId }, request);
         return { code: OK, status: OK_STATUS, additional_information: result };
     }
     catch (err) {
-        throw { code: INTERNAL_SERVER_ERROR, status: err.toString() };
+        if (err.code)
+            throw err;
+        else
+            throw { code: INTERNAL_SERVER_ERROR, status: err.toString() };
     }
 }
 

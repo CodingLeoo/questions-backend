@@ -1,3 +1,4 @@
+import { trackAccess } from './../middlewares/common.middleware';
 import { OK_STATUS } from './../utils/constants';
 import { OK } from 'http-status';
 import { IQuestion } from './../models/question.model';
@@ -31,20 +32,22 @@ QuestionRouter.post('/:questionid/validate', (request: Request, response: Respon
 })
 
 
-QuestionRouter.get('/:questionid/find', (request: Request, response: Response) => {
+QuestionRouter.get('/:questionid/find', trackAccess, (request: Request, response: Response) => {
+    const permissions = request.headers.question_permissions as string;
     const questionId = request.params.questionid;
-    findQuestion(questionId).then((result: IQuestion) => {
+    findQuestion(questionId, permissions).then((result: IQuestion) => {
         response.status(OK).json({ data: result });
     }).catch((err) => {
         response.status(err.code).json(err);
     })
 })
 
-QuestionRouter.put('/:questionid/update', (request: Request, response: Response) => {
+QuestionRouter.put('/:questionid/update', trackAccess, (request: Request, response: Response) => {
+    const permissions = request.headers.question_permissions as string;
     const questionId = request.params.questionid;
     const body = request.body;
 
-    updateQuestion(questionId, body).then(() => {
+    updateQuestion(questionId, body, permissions).then(() => {
         response.status(OK).json({ code: OK, status: OK_STATUS });
     }).catch((err) => {
         response.status(err.code).json(err);

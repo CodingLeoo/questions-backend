@@ -1,7 +1,7 @@
 import { ICourse } from './../models/course.models';
 import { IUser } from './../models/auth.models';
 import { OK } from 'http-status';
-import { createCourse, enrollCourse, getStudents, getDetail } from './../services/course.service';
+import { createCourse, enrollCourse, getStudents, getDetail, getOwner, getExams, getSections } from './../services/course.service';
 import { Router, Request, Response } from 'express';
 
 
@@ -22,10 +22,39 @@ CoursesRouter.get('/:course/detail', (request: Request, response: Response) => {
 })
 
 
+CoursesRouter.get('/:course/owner', (request: Request, response: Response) => {
+    const courseId = request.params.course;
+    getOwner(courseId).then((ownerData: any) => {
+        response.status(OK).json({ data: ownerData });
+    }).catch((err) => {
+        response.status(err.code).json(err);
+    })
+})
+
+
 CoursesRouter.get('/:course/students', (request: Request, response: Response) => {
     const courseId = request.params.course;
     getStudents(courseId).then((students: IUser[]) => {
         response.status(OK).json({ data: students });
+    }).catch((err) => {
+        response.status(err.code).json(err);
+    })
+})
+
+
+CoursesRouter.get('/:course/exams', (request: Request, response: Response) => {
+    const courseId = request.params.course;
+    getExams(courseId).then((ownerData: any) => {
+        response.status(OK).json({ data: ownerData });
+    }).catch((err) => {
+        response.status(err.code).json(err);
+    })
+})
+
+CoursesRouter.get('/:course/sections', (request: Request, response: Response) => {
+    const courseId = request.params.course;
+    getSections(courseId).then((ownerData: any) => {
+        response.status(OK).json({ data: ownerData });
     }).catch((err) => {
         response.status(err.code).json(err);
     })

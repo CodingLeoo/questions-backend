@@ -25,8 +25,10 @@ const topic: Schema = new Schema({
 
 topic.post('find', (docs: any) => {
     docs.forEach((doc: ICourse) => {
-        doc.create_date = getDateWithTimeZone(doc.create_date);
-        doc.last_update_date = getDateWithTimeZone(doc.last_update_date);
+        if (doc.create_date || doc.last_update_date) {
+            doc.create_date = getDateWithTimeZone(doc.create_date);
+            doc.last_update_date = getDateWithTimeZone(doc.last_update_date);
+        }
     })
 })
 

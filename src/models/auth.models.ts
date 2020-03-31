@@ -47,8 +47,10 @@ const user: Schema = new Schema({
 
 user.post('find', (docs: any) => {
     docs.forEach((doc: IUser) => {
-        doc.creation_date = getDateWithTimeZone(doc.creation_date);
-        doc.last_update_date = getDateWithTimeZone(doc.last_update_date);
+        if (doc.creation_date || doc.last_update_date) {
+            doc.creation_date = getDateWithTimeZone(doc.creation_date);
+            doc.last_update_date = getDateWithTimeZone(doc.last_update_date);
+        }
     })
 })
 

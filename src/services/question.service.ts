@@ -1,6 +1,6 @@
 import { Section } from './../models/section.model';
-import { COURSE_NOT_FOUND, QUESTION_VALIDATED_OK, QUESTION_VALIDATED_FAIL, QUESTION_NOT_FOUND, OPTION_NOT_FOUND, OK_STATUS } from './../utils/constants';
-import { NOT_FOUND, INTERNAL_SERVER_ERROR, OK } from 'http-status';
+import { COURSE_NOT_FOUND, QUESTION_VALIDATED_OK, QUESTION_VALIDATED_FAIL, QUESTION_NOT_FOUND, OPTION_NOT_FOUND, OK_STATUS, UNAUTHORIZED_STATUS } from './../utils/constants';
+import { NOT_FOUND, INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED } from 'http-status';
 import { IQuestion, Question, Option, IOption } from './../models/question.model';
 
 
@@ -62,9 +62,10 @@ export const validateQuestion = async (questionId: string, optionId: string): Pr
 }
 
 
-export const findQuestion = async (questionId: string): Promise<IQuestion> => {
+export const findQuestion = async (questionId: string, access: string): Promise<IQuestion> => {
+    const param = access === 'true' ? '' : '-answer';
     try {
-        const result = await Question.findById(questionId, { __v: 0, course: 0, answer: 0 }).populate("options", "-answer -question -__v");
+        const result = await Question.findById(questionId, { __v: 0, course: 0, answer: 0 , section : 0 }).populate("options", `${param} -question -__v -section`);
         if (!result) {
             throw { code: NOT_FOUND, status: QUESTION_NOT_FOUND };
         }
@@ -79,8 +80,10 @@ export const findQuestion = async (questionId: string): Promise<IQuestion> => {
 }
 
 
-export const updateQuestion = async (questionId: string, request: any): Promise<void> => {
+export const updateQuestion = async (questionId: string, request: any, access: string): Promise<void> => {
     try {
+        if (access !== 'true')
+            throw { code: UNAUTHORIZED, status: UNAUTHORIZED_STATUS };
         const result = await Question.findById(questionId).populate("answer");
         if (!result) {
             throw { code: NOT_FOUND, status: QUESTION_NOT_FOUND };

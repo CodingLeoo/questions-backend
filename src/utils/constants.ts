@@ -9,6 +9,7 @@ export const UNAUTHORIZED_STATUS = 'you don´t have access to this resource.';
 export const BAD_REQUEST_STATUS = 'bad request.';
 export const SESSION_NOT_FOUND = 'not matched authorization with current sessions.';
 export const TOPIC_NOT_FOUND = 'not matched topic with requested information.';
+export const EXAM_NOT_FOUND = 'not matched exam with requested information.';
 export const COURSE_NOT_FOUND = 'not matched courses with requested course.';
 export const SECTION_NOT_FOUND = 'not matched sections with requested section.';
 export const NO_COURSES_FOUND = 'Oops , looks like you dont have courses :(';

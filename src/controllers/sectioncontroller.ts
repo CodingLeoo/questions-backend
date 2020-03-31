@@ -1,3 +1,4 @@
+import { trackAccess } from './../middlewares/common.middleware';
 import { ISection } from './../models/section.model';
 import { OK } from 'http-status';
 import { createSection, updateSection, deleteSection, addSharedOption, addQuestion, findSection } from './../services/section.service';
@@ -6,10 +7,11 @@ import { Router, Request, Response } from 'express';
 
 export const SectionRouter: Router = Router();
 
-SectionRouter.get('/:sectionid/find', (request: Request, response: Response) => {
+SectionRouter.get('/:sectionid/find', trackAccess, (request: Request, response: Response) => {
+    const access = request.headers.test_permissions as string;
     const sectionId = request.params.sectionid;
 
-    findSection(sectionId).then((result: ISection) => {
+    findSection(sectionId, access).then((result: ISection) => {
         response.status(OK).json({ data: result });
     }).catch((err) => {
         response.status(err.code).json(err);
@@ -27,11 +29,12 @@ SectionRouter.post('/:courseid/create', (request: Request, response: Response) =
     })
 })
 
-SectionRouter.put('/:sectionid/update', (request: Request, response: Response) => {
+SectionRouter.put('/:sectionid/update', trackAccess, (request: Request, response: Response) => {
+    const access = request.headers.test_permissions as string;
     const sectionId = request.params.sectionid;
     const body = request.body;
 
-    updateSection(body, sectionId).then((result: any) => {
+    updateSection(body, sectionId, access).then((result: any) => {
         response.status(OK).json(result);
     }).catch((err) => {
         response.status(err.code).json(err);
