@@ -33,8 +33,8 @@ UserRouter.get('/find', (request: Request, response: Response) => {
 UserRouter.put('/update', isNotEmptyBody, (request: Request, response: Response) => {
     const { password, user_name } = request.body;
     const sessionId = request.headers.ssid as string;
-    updateEntity(sessionId, user_name, password).then(() => {
-        response.status(OK).json({ code: OK, status: OK_STATUS });
+    updateEntity(sessionId, user_name, password).then((result: any) => {
+        response.status(OK).json({ code: OK, status: OK_STATUS, additional_information: result });
     }).catch((err) => {
         response.status(err.code).json(err);
     })
@@ -44,8 +44,8 @@ UserRouter.put('/update', isNotEmptyBody, (request: Request, response: Response)
 UserRouter.patch('/image', (request: Request, response: Response) => {
     const value = request.body.value;
     const sessionId = request.headers.ssid as string;
-    updatePhoto(sessionId, value).then(() => {
-        response.status(OK).json({ code: OK, status: OK_STATUS });
+    updatePhoto(sessionId, value).then((result: any) => {
+        response.status(OK).json({ code: OK, status: OK_STATUS, additional_information: result });
     }).catch((err) => {
         response.status(err.code).json(err);
     })

@@ -1,11 +1,12 @@
+import { Calification } from './../models/calification.model';
 import { getDateWithTimeZone } from './../utils/time.utils';
 import { ISection } from './../models/section.model';
 import { COURSE_ENROLLMENT_ICON, COURSE_CREATION_ICON, STUDENTS_EMPTY_STATE } from './../utils/icon-constants';
 import { firstName } from './../utils/string.utils';
 import { USER_COURSE_ENROLL, USER_COURSE_ENROLLMENT_DESCRIPTION, USER_COURSE_CREATION_DESCRIPTION, USER_COURSE_CREATION } from './../utils/event-constants';
 import { registryUserActivity } from './../helpers/user.activity.helper';
-import { OK_STATUS, UNAUTHORIZED_STATUS, COURSE_NOT_FOUND, NO_STUDENTS_FOUND } from './../utils/constants';
-import { OK, UNAUTHORIZED, NOT_FOUND, INTERNAL_SERVER_ERROR } from 'http-status';
+import { OK_STATUS, UNAUTHORIZED_STATUS, COURSE_NOT_FOUND, NO_STUDENTS_FOUND, COURSE_ALREADY_ENROLLED } from './../utils/constants';
+import { OK, UNAUTHORIZED, NOT_FOUND, INTERNAL_SERVER_ERROR, CONFLICT } from 'http-status';
 import { Topic } from './../models/topic.models';
 import { ICourse, Course } from './../models/course.models';
 import { User, IUser } from './../models/auth.models';
@@ -15,7 +16,7 @@ import { User, IUser } from './../models/auth.models';
 export const createCourse = async (sessionId: string, request: any): Promise<any> => {
     const result = await User.findOne({ session_id: sessionId }).populate('topic');
     if (!result.topic) {
-        throw { code: UNAUTHORIZED, message: UNAUTHORIZED_STATUS };
+        throw { code: UNAUTHORIZED, status: UNAUTHORIZED_STATUS };
     }
     const course = ({
         title: request.title,
@@ -28,25 +29,38 @@ export const createCourse = async (sessionId: string, request: any): Promise<any
     registryUserActivity(result, USER_COURSE_CREATION, USER_COURSE_CREATION_DESCRIPTION(firstName(result.user_name), createdCourse.title), COURSE_CREATION_ICON);
     return {
         code: OK,
-        message: OK_STATUS,
+        status: OK_STATUS,
         created_at: createdCourse.create_date
     };
 }
 
 
 export const enrollCourse = async (sessionId: string, id: string): Promise<any> => {
-    const course = await Course.findOne({ _id: id });
-    if (!course) {
-        throw { code: NOT_FOUND, message: COURSE_NOT_FOUND };
+    try {
+        const courseResult = await Course.findOne({ _id: id }).populate('students');
+        if (!courseResult) {
+            throw { code: NOT_FOUND, status: COURSE_NOT_FOUND };
+        }
+        const result = await User.findOne({ session_id: sessionId });
+        const student = courseResult.students.find((user: IUser) => user._id.equals(result._id));
+        if (student) {
+            throw { code: CONFLICT, status: COURSE_ALREADY_ENROLLED };
+        }
+
+        await courseResult.updateOne({ $push: { students: result } });
+        registryUserActivity(result, USER_COURSE_ENROLL, USER_COURSE_ENROLLMENT_DESCRIPTION(firstName(result.user_name), courseResult.title), COURSE_ENROLLMENT_ICON);
+        await Calification.create({ course: courseResult, user: result });
+        return {
+            code: OK,
+            status: OK_STATUS,
+            enrolled_at: new Date()
+        };
+    } catch (err) {
+        if (err.code)
+            throw err
+        else
+            throw { code: INTERNAL_SERVER_ERROR, status: err.toString() };
     }
-    const result = await User.findOne({ session_id: sessionId });
-    await course.updateOne({ $push: { students: result } });
-    registryUserActivity(result, USER_COURSE_ENROLL, USER_COURSE_ENROLLMENT_DESCRIPTION(firstName(result.user_name), course.title), COURSE_ENROLLMENT_ICON);
-    return {
-        code: OK,
-        message: OK_STATUS,
-        enrolled_at: new Date()
-    };
 }
 
 
@@ -99,7 +113,7 @@ export const getOwner = async (courseId: string): Promise<any> => {
         return {
             email: course.owner.email,
             user_name: course.owner.user_name,
-            photo: course.owner.photo.toString('base64'),
+            photo: course.owner.photo?.toString('base64'),
             code: course.owner.code,
             topic: course.topic,
             last_token_date: getDateWithTimeZone(course.owner.last_token_date),

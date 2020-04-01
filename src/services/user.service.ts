@@ -13,8 +13,8 @@ export const findUser = (sessionId: string) => {
 
 
 export const getCreatedCourses = async (sessionId: string): Promise<ICourse[]> => {
-    const result = await User.findOne({ session_id: sessionId } , { photo : 0});
-    const courses = await Course.find({ owner: result }, { exams: 0, questions: 0, students: 0, __v: 0 })
+    const result = await User.findOne({ session_id: sessionId }, { photo: 0 });
+    const courses = await Course.find({ owner: result }, { exams: 0, sections: 0, students: 0, __v: 0 })
         .populate("topic owner", "-__v  -session_id -refresh_count -last_token_date -courses -_id -password -role -topic -photo");
     if (courses.length > 0) {
         return courses;
@@ -25,8 +25,8 @@ export const getCreatedCourses = async (sessionId: string): Promise<ICourse[]> =
 
 export const getEnrolledCourses = async (sessionId: string): Promise<ICourse[]> => {
     const result = await User.findOne({ session_id: sessionId });
-    const courses = await Course.find({ students: result }, { exams: 0, questions: 0, students: 0, __v: 0 })
-        .populate("topic owner", "-__v  -session_id -courses -_id -password -role -topic");
+    const courses = await Course.find({ students: result }, { exams: 0, sections: 0, students: 0, __v: 0, owner: 0 })
+        .populate("topic", "-__v -courses -_id");
     if (courses.length > 0) {
         return courses;
     }
@@ -49,7 +49,7 @@ export const updatePhoto = async (sessionId: string, value: any): Promise<void> 
     try {
         const result = await User.findOne({ session_id: sessionId });
         const image = new Buffer(value, 'base64');
-        return result.update({ $set: { photo: image } });
+        return result.updateOne({ $set: { photo: image } });
     }
     catch (err) {
         throw { code: INTERNAL_SERVER_ERROR, status: err.toString() };
@@ -61,11 +61,11 @@ export const updateEntity = async (sessionId: string, userName: string, password
         const result = await User.findOne({ session_id: sessionId });
         if (password) {
             return hash(password, Math.floor(Math.random() * 10)).then((encryptedValue: string) => {
-                return result.update({ $set: { user_name: userName, password: encryptedValue } });
+                return result.updateOne({ $set: { user_name: userName, password: encryptedValue } });
             });
         }
         else {
-            return result.update({ $set: { user_name: userName } });
+            return result.updateOne({ $set: { user_name: userName } });
         }
     }
     catch (err) {

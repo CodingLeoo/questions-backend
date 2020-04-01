@@ -11,7 +11,6 @@ export const findExam = async (examId: string) => {
             throw { code: NOT_FOUND, status: EXAM_NOT_FOUND }
         return exam;
     } catch (err) {
-        console.log(err);
         if (err.code)
             throw err;
         else

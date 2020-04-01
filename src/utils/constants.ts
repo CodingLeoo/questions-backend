@@ -11,6 +11,7 @@ export const SESSION_NOT_FOUND = 'not matched authorization with current session
 export const TOPIC_NOT_FOUND = 'not matched topic with requested information.';
 export const EXAM_NOT_FOUND = 'not matched exam with requested information.';
 export const COURSE_NOT_FOUND = 'not matched courses with requested course.';
+export const COURSE_ALREADY_ENROLLED =  'you´re already enrolled in this course!';
 export const SECTION_NOT_FOUND = 'not matched sections with requested section.';
 export const NO_COURSES_FOUND = 'Oops , looks like you dont have courses :(';
 export const NO_STUDENTS_FOUND = 'Oops , you don´t have students enrolled to this course :(';
