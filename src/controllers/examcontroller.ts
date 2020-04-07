@@ -1,6 +1,6 @@
 import { IExam } from './../models/exam.models';
 import { OK } from 'http-status';
-import { createExam, findExam, updateExam, deleteExam } from './../services/exam.service';
+import { createExam, findExam, updateExam, deleteExam, initExam } from './../services/exam.service';
 import { Router, Request, Response } from 'express';
 
 
@@ -29,6 +29,19 @@ ExamsRouter.post('/:courseid/create', (request: Request, response: Response) => 
         response.status(err.code).json(err);
     })
 })
+
+
+ExamsRouter.post('/:examid/init', (request: Request, response: Response) => {
+    const examId = request.params.examid;
+    const sessionId = request.headers.ssid as string;
+
+    initExam(examId, sessionId).then((result : any) => {
+        response.status(OK).json(result);
+    }).catch((err: any) => {
+        response.status(err.code).json(err);
+    })
+})
+
 
 ExamsRouter.put('/:examid/update', (request: Request, response: Response) => {
     const examId = request.params.examid;

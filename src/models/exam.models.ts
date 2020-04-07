@@ -9,6 +9,7 @@ export interface IExam extends Document {
     course: ICourse
     title: string
     minimum_approve_questions: number
+    total_questions: number
     sections: ISection[]
     create_date: Date
     last_update_date: Date
@@ -23,11 +24,14 @@ const exam: Schema = new Schema({
     },
     title: { type: String, required: true },
     minimum_approve_questions: { type: Number, required: true },
+    total_questions: { type: Number, required: true },
     sections: [{
         type: Schema.Types.ObjectId,
         ref: 'section'
     }]
 }, { timestamps: { createdAt: 'create_date', updatedAt: 'last_update_date' } });
+
+// TRIGGER FUNCTIONS
 
 exam.post('find', (docs: any) => {
     docs.forEach((doc: ISection) => {
@@ -50,5 +54,6 @@ exam.post('findOneAndDelete', (doc: IExam, next: any) => {
         next();
     })
 })
+
 
 export const Exam: Model<IExam> = model<IExam>('exam', exam);
