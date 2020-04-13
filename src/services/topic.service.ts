@@ -22,9 +22,9 @@ export const find = async (topicId: string): Promise<ITopic | any> => {
             populate: {
                 path: 'owner',
                 model: 'user',
-                select: '-_id  -__v -session_id -refresh_count -last_token_date'
+                select: '-_id  -__v -session_id -refresh_count -password -photo -role -topic -creation_date -last_update_date'
             },
-            select: '-__v -students -questions -exams -topic'
+            select: '-__v -students -questions -exams -topic -sections'
         });
         if (!result) {
             throw { code: NOT_FOUND, status: TOPIC_NOT_FOUND };
