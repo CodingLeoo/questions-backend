@@ -1,15 +1,12 @@
+import { isNotEmptyBody } from './../middlewares/common.middleware';
 import { ICourse } from './../models/course.models';
 import { IUser } from './../models/auth.models';
 import { OK } from 'http-status';
-import { createCourse, enrollCourse, getStudents, getDetail, getOwner, getExams, getSections } from './../services/course.service';
+import { createCourse, enrollCourse, getStudents, getDetail, getOwner, getExams, getSections, updateCourse, deleteCourse } from './../services/course.service';
 import { Router, Request, Response } from 'express';
 
 
 export const CoursesRouter: Router = Router();
-
-CoursesRouter.get('/all', (response: Response) => {
-    response.json({ status: 'exitoso' });
-})
 
 
 CoursesRouter.get('/:course/detail', (request: Request, response: Response) => {
@@ -81,15 +78,21 @@ CoursesRouter.post('/:course/enroll', (request: Request, response: Response) => 
     })
 })
 
-CoursesRouter.put('/:course/update', (request: Request, response: Response) => {
+CoursesRouter.put('/:course/update', isNotEmptyBody, (request: Request, response: Response) => {
     const courseId = request.params.course;
-
-    response.json({ status: 'exitoso' });
+    const body = request.body;
+    updateCourse(courseId, body).then((result: any) => {
+        response.status(OK).json(result);
+    }).catch((err) => {
+        response.status(err.code).json(err);
+    })
 })
 
 CoursesRouter.delete('/:course/delete', (request: Request, response: Response) => {
     const courseId = request.params.course;
-    const body = request.body;
-    console.log(`course requested : ${body} , course-id : ${courseId}`);
-    response.json({ status: 'exitoso' });
+    deleteCourse(courseId).then((result: any) => {
+        response.status(OK).json(result);
+    }).catch((err) => {
+        response.status(err.code).json(err);
+    })
 })

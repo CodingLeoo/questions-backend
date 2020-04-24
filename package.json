@@ -4,7 +4,7 @@
   "description": "NodeJs API for questions-app",
   "main": "dist/app.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tslint -p .\\tsconfig.json && tsc",
     "start": "node .dist/app.js",
     "start-dev": "node --inspect=5858 -r ts-node/register ./src/app.ts",
     "start:watch": "nodemon",

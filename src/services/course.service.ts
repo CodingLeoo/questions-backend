@@ -1,6 +1,7 @@
+import { Exam } from './../models/exam.models';
 import { Calification } from './../models/calification.model';
 import { getDateWithTimeZone } from './../utils/time.utils';
-import { ISection } from './../models/section.model';
+import { ISection, Section } from './../models/section.model';
 import { COURSE_ENROLLMENT_ICON, COURSE_CREATION_ICON, STUDENTS_EMPTY_STATE } from './../utils/icon-constants';
 import { firstName } from './../utils/string.utils';
 import { USER_COURSE_ENROLL, USER_COURSE_ENROLLMENT_DESCRIPTION, USER_COURSE_CREATION_DESCRIPTION, USER_COURSE_CREATION } from './../utils/event-constants';
@@ -69,10 +70,6 @@ export const getDetail = async (id: string): Promise<any> => {
         const result = await Course.findOne({ _id: id })
             .populate('sections', '-_id -__v')
             .populate('topic', '-__v -courses');
-
-        if (!result) {
-            throw { code: NOT_FOUND, message: COURSE_NOT_FOUND };
-        }
 
         const questionsCount = result.sections
             .map((section: ISection) => section.questions.length)
@@ -168,6 +165,38 @@ export const getSections = async (courseId: string) => {
         if (!course)
             throw { code: NOT_FOUND, message: COURSE_NOT_FOUND };
         return course.sections
+    } catch (err) {
+        if (err.code)
+            throw err
+        else
+            throw { code: INTERNAL_SERVER_ERROR, status: err.toString() };
+    }
+}
+
+export const updateCourse = async (courseId: string, body: any) => {
+    try {
+        const updateResult = await Course.update({ _id: courseId }, { title: body.title, description: body.description });
+        return { code: OK, status: OK_STATUS, additional_information: updateResult }
+    } catch (err) {
+        throw { code: INTERNAL_SERVER_ERROR, status: err.toString() };
+    }
+}
+
+
+export const deleteCourse = async (courseId: string) => {
+    try {
+        const course = await Course.findByIdAndDelete(courseId);
+
+        if (!course)
+            throw { code: NOT_FOUND, message: COURSE_NOT_FOUND };
+
+        if (course.sections)
+            await Section.deleteMany({ _id: course.sections });
+        if (course.exams)
+            await Exam.deleteMany({ _id: course.exams });
+
+        return { code: OK, status: OK_STATUS, additional_information: { _id: course._id } };
+
     } catch (err) {
         if (err.code)
             throw err
