@@ -41,8 +41,8 @@ CoursesRouter.get('/:course/students', (request: Request, response: Response) =>
 
 CoursesRouter.get('/:course/exams', (request: Request, response: Response) => {
     const courseId = request.params.course;
-    getExams(courseId).then((ownerData: any) => {
-        response.status(OK).json({ data: ownerData });
+    getExams(courseId).then((exams: any) => {
+        response.status(OK).json({ data: exams });
     }).catch((err) => {
         response.status(err.code).json(err);
     })
@@ -50,8 +50,8 @@ CoursesRouter.get('/:course/exams', (request: Request, response: Response) => {
 
 CoursesRouter.get('/:course/sections', (request: Request, response: Response) => {
     const courseId = request.params.course;
-    getSections(courseId).then((ownerData: any) => {
-        response.status(OK).json({ data: ownerData });
+    getSections(courseId).then((sections: any) => {
+        response.status(OK).json({ data: sections });
     }).catch((err) => {
         response.status(err.code).json(err);
     })
