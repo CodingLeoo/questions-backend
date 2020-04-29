@@ -20,9 +20,9 @@ const app: express.Application = express();
 // commons using
 app.use(express.json({ limit: '20mb' }), express.urlencoded({ extended: true, limit: '20mb' }));
 app.use(cors());
-app.all('/api/*', RequireAuth, isValidToken);
 
 // Routes configuration
+app.all('/api/*', RequireAuth, isValidToken);
 app.use('/authentication/v1', authRouter);
 app.use('/api/user/v1', UserRouter);
 app.use('/api/courses/v1', CoursesRouter);

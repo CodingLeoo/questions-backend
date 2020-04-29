@@ -1,8 +1,7 @@
 import { Section } from './../models/section.model';
-import { COURSE_NOT_FOUND, QUESTION_VALIDATED_OK, QUESTION_VALIDATED_FAIL, QUESTION_NOT_FOUND, OPTION_NOT_FOUND, OK_STATUS, UNAUTHORIZED_STATUS } from './../utils/constants';
+import { COURSE_NOT_FOUND, QUESTION_NOT_FOUND, OPTION_NOT_FOUND, OK_STATUS, UNAUTHORIZED_STATUS } from './../utils/constants';
 import { NOT_FOUND, INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED } from 'http-status';
 import { IQuestion, Question, Option, IOption } from './../models/question.model';
-import { response } from 'express';
 
 
 export const createQuestion = async (request: any, sectionId: string): Promise<any> => {

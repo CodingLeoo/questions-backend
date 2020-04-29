@@ -11,7 +11,7 @@ export interface IUser extends Document {
     user_name: string
     email: string
     code: number
-    photo?: Buffer
+    photo?: Photo
     password: string
     role: IRole,
     topic?: ITopic
@@ -22,11 +22,19 @@ export interface IUser extends Document {
     refresh_count?: number
 }
 
+export interface Photo {
+    content: Buffer;
+    content_type: string;
+}
+
 const user: Schema = new Schema({
     email: { type: String, required: true },
     user_name: { type: String, required: true },
     code: { type: Number, required: true },
-    photo: Buffer,
+    photo: {
+        content: { data: Buffer, contentType: String },
+        content_type: { type: String }
+    },
     password: { type: String, required: true },
     role: {
         type: Schema.Types.ObjectId,
@@ -43,7 +51,7 @@ const user: Schema = new Schema({
 }, { timestamps: { createdAt: 'creation_date', updatedAt: 'last_update_date' } });
 
 
-// TRIGGER METHODS
+// TRIGGER METHODS 🤓
 
 user.post('find', (docs: any) => {
     docs.forEach((doc: IUser) => {
@@ -51,7 +59,20 @@ user.post('find', (docs: any) => {
             doc.creation_date = getDateWithTimeZone(doc.creation_date);
             doc.last_update_date = getDateWithTimeZone(doc.last_update_date);
         }
+
+        if (doc.last_token_date)
+            doc.last_token_date = getDateWithTimeZone(doc.last_token_date);
     })
+})
+
+user.post('findOne', (doc: IUser) => {
+    if (doc.creation_date || doc.last_update_date) {
+        doc.creation_date = getDateWithTimeZone(doc.creation_date);
+        doc.last_update_date = getDateWithTimeZone(doc.last_update_date);
+    }
+
+    if (doc.last_token_date)
+        doc.last_token_date = getDateWithTimeZone(doc.last_token_date);
 })
 
 user.post('save', (result: IUser) => {

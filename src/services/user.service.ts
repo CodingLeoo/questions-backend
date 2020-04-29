@@ -45,11 +45,11 @@ export const getActivity = async (sessionId: string): Promise<IUserActivity> => 
 }
 
 
-export const updatePhoto = async (sessionId: string, value: any): Promise<void> => {
+export const updatePhoto = async (sessionId: string, body: any): Promise<void> => {
     try {
         const result = await User.findOne({ session_id: sessionId });
-        const image = new Buffer(value, 'base64');
-        return result.updateOne({ $set: { photo: image } });
+        const image = new Buffer(body.value, 'base64');
+        return result.updateOne({ $set: { photo: { content: image, content_type: body.content_type } } });
     }
     catch (err) {
         throw { code: INTERNAL_SERVER_ERROR, status: err.toString() };

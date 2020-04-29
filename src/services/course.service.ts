@@ -110,7 +110,7 @@ export const getOwner = async (courseId: string): Promise<any> => {
         return {
             email: course.owner.email,
             user_name: course.owner.user_name,
-            photo: course.owner.photo?.toString('base64'),
+            photo: course.owner.photo,
             code: course.owner.code,
             topic: course.topic,
             last_token_date: getDateWithTimeZone(course.owner.last_token_date),
