@@ -34,6 +34,6 @@ export const trackAccess = (request: Request, response: Response, next: NextFunc
         }
         request.headers.test_permissions = user.role.permission_update_test.toString();
         request.headers.question_permissions = user.role.permission_update_question.toString();
-        return next();
+        next();
     })
 }

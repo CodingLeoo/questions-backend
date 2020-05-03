@@ -48,7 +48,7 @@ exam.post('findOne', (doc: IExam) => {
 exam.post('findOneAndDelete', (doc: IExam, next: any) => {
     if (!doc) {
         const err = { code: NOT_FOUND, status: EXAM_NOT_FOUND };
-        next(err);
+        return next(err);
     }
     Course.updateOne({ _id: doc.course }, { $pull: { exams: doc._id } }).then(() => {
         next();

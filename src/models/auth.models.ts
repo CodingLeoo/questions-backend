@@ -1,3 +1,4 @@
+import { USER_NOT_FOUND_STATUS } from './../utils/constants';
 import { firstName } from './../utils/string.utils';
 import { START_ICON, LOGIN_ICON, LOGOUT_ICON } from './../utils/icon-constants';
 import { getDateWithTimeZone } from './../utils/time.utils';
@@ -65,7 +66,12 @@ user.post('find', (docs: any) => {
     })
 })
 
-user.post('findOne', (doc: IUser) => {
+user.post('findOne', (doc: IUser, next: any) => {
+    if (!doc) {
+        const err = new Error(USER_NOT_FOUND_STATUS);
+        return next(err);
+    }
+
     if (doc.creation_date || doc.last_update_date) {
         doc.creation_date = getDateWithTimeZone(doc.creation_date);
         doc.last_update_date = getDateWithTimeZone(doc.last_update_date);
@@ -73,6 +79,7 @@ user.post('findOne', (doc: IUser) => {
 
     if (doc.last_token_date)
         doc.last_token_date = getDateWithTimeZone(doc.last_token_date);
+    next();
 })
 
 user.post('save', (result: IUser) => {

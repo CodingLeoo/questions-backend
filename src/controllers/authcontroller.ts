@@ -7,18 +7,14 @@ import { v4 } from 'uuid';
 import { UNAUTHORIZED, NOT_FOUND, OK, INTERNAL_SERVER_ERROR, UNPROCESSABLE_ENTITY } from 'http-status';
 import { generateToken, refreshToken, invalidateToken } from './../helpers/security.helper';
 import { RequireAuth } from './../middlewares/auth.midleware';
-import { SESSION_ACTIVE_STATUS, AUTHENTICATION_FAILED_STATUS, INTERNAL_SERVER_ERROR_STATUS, USER_NOT_FOUND_STATUS, USER_EXISTS_STATUS, OK_STATUS, ROLE_NOT_FOUND_STATUS } from './../utils/constants';
+import { SESSION_ACTIVE_STATUS, AUTHENTICATION_FAILED_STATUS, INTERNAL_SERVER_ERROR_STATUS, USER_EXISTS_STATUS, OK_STATUS, ROLE_NOT_FOUND_STATUS } from './../utils/constants';
 import { getDateWithTimeZone } from './../utils/time.utils';
 
 export const authRouter: Router = Router();
 
 authRouter.post('/login', (request: Request, response: Response) => {
     const body = request.body;
-
     User.findOne({ email: body.email }).populate("role", "-_id -_ -refresh_count").then((user: IUser) => {
-        if (!user) {
-            throw new Error(USER_NOT_FOUND_STATUS);
-        }
         if (user?.session_id) {
             return response.status(UNAUTHORIZED).json({ code: UNAUTHORIZED, status: SESSION_ACTIVE_STATUS });
         }

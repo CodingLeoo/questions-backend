@@ -71,7 +71,7 @@ section.post('findOne', (doc: ISection) => {
 section.post('findOneAndDelete', (result: ISection, next: any) => {
     if (!result) {
         const err = { code: NOT_FOUND, status: SECTION_NOT_FOUND }
-        next(err);
+        return next(err);
     }
 
     Course.findById(result.course).then((course: ICourse) => {

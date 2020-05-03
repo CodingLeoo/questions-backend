@@ -58,8 +58,7 @@ course.post('find', (docs: any) => {
 
 course.post('findOne', (doc: ICourse, next: (err?: any) => void) => {
     if (!doc) {
-        next({ code: NOT_FOUND, status: COURSE_NOT_FOUND });
-        return;
+        return next({ code: NOT_FOUND, status: COURSE_NOT_FOUND });
     }
     doc.create_date = getDateWithTimeZone(doc.create_date);
     doc.last_update_date = getDateWithTimeZone(doc.last_update_date);
@@ -70,7 +69,7 @@ course.post('findOne', (doc: ICourse, next: (err?: any) => void) => {
 course.post('findOneAndDelete', (doc: ICourse, next: any) => {
     if (!doc) {
         const err = { code: NOT_FOUND, status: COURSE_NOT_FOUND };
-        next(err);
+        return next(err);
     }
     Topic.updateOne({ _id: doc.topic }, { $pull: { courses: doc._id } }).then(() => {
         next();

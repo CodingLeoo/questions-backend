@@ -63,7 +63,7 @@ const option: Schema = new Schema({
 question.post('findOneAndDelete', (result: IQuestion, next: any) => {
     if (!result) {
         const err = { code: NOT_FOUND, status: QUESTION_NOT_FOUND }
-        next(err);
+        return next(err);
     }
 
     Section.findById(result.section).then((section: ISection) => {
