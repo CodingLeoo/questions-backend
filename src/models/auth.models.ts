@@ -7,6 +7,7 @@ import { createRecord, registryUserActivity } from './../helpers/user.activity.h
 import { ITopic } from './topic.models';
 import { Document, Schema, Model, model } from 'mongoose';
 import { IRole } from './role.model';
+import { Photo } from './shared.models';
 
 export interface IUser extends Document {
     user_name: string
@@ -21,11 +22,6 @@ export interface IUser extends Document {
     creation_date?: Date
     last_update_date?: Date
     refresh_count?: number
-}
-
-export interface Photo {
-    content: Buffer;
-    content_type: string;
 }
 
 const user: Schema = new Schema({

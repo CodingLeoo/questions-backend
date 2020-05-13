@@ -5,14 +5,14 @@ import { Section, ISection } from './../models/section.model';
 
 const getAsBuffer = (base64String: string) => {
     if (base64String)
-        return new Buffer(base64String, 'base64');
+        return Buffer.from(base64String, 'base64');
     return undefined;
 }
 
 export const findSection = async (sectionId: string, access: string): Promise<ISection> => {
     const param = access === 'true' ? '' : '-answer';
     try {
-        const section = Section.findOne({ _id: sectionId }, { __v: 0 }).populate({
+        const section = await Section.findOne({ _id: sectionId }, { __v: 0 }).populate({
             path: 'questions example',
             model: 'question',
             populate: [{
@@ -31,10 +31,6 @@ export const findSection = async (sectionId: string, access: string): Promise<IS
             select: `-__v -question -section ${param}`
         })
 
-        if (!section) {
-            throw { code: NOT_FOUND, status: SECTION_NOT_FOUND };
-        }
-
         return section;
     } catch (err) {
         if (err.code)
@@ -50,13 +46,18 @@ export const createSection = async (request: any, courseId: string): Promise<{ c
         const courseResult = await Course.findById(courseId);
         if (!courseResult)
             throw { code: NOT_FOUND, status: COURSE_NOT_FOUND };
+
         const result = await Section.create({
             course: courseResult,
             title: request.title,
             type: request.type,
-            context: request.context,
-            buffer: getAsBuffer(request.image)
+            context: request.context
         });
+
+        if (request.image) {
+            await result.updateOne({ $set: { image: { content: getAsBuffer(request.image.content), content_type: request.image.content_type } } });
+        }
+
         await courseResult.updateOne({ $push: { sections: result } });
         return { code: OK, status: OK_STATUS, additional_information: { _id: result._id } };
     }
@@ -103,8 +104,7 @@ export const addSharedOption = async (optionId: string, sectionId: string): Prom
 
 export const updateSection = async (request: any, sectionId: string, access: string): Promise<{ code: number, status: string, additional_information?: any }> => {
     if (request.image) {
-        request.buffer = getAsBuffer(request.image);
-        request.image = undefined;
+        request.image.content = getAsBuffer(request.image.content);
     }
     try {
         if (access !== 'true')

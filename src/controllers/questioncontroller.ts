@@ -2,7 +2,7 @@ import { trackAccess } from './../middlewares/common.middleware';
 import { OK_STATUS } from './../utils/constants';
 import { OK } from 'http-status';
 import { IQuestion } from './../models/question.model';
-import { createQuestion, findQuestion, updateQuestion, deleteQuestion, addOptionImage, createSharedOption } from './../services/question.service';
+import { createQuestion, findQuestion, updateQuestion, deleteQuestion, updateOption, createSharedOption } from './../services/question.service';
 import { Router, Request, Response } from 'express';
 
 
@@ -63,11 +63,11 @@ QuestionRouter.post('/option/:sectionid/shared', (request: Request, response: Re
     })
 })
 
-QuestionRouter.patch('/option/:optionid/image', (request: Request, response: Response) => {
+QuestionRouter.put('/option/:optionid/update', (request: Request, response: Response) => {
     const optionId = request.params.optionid;
-    const value = request.body.value;
+    const body = request.body;
 
-    addOptionImage(optionId, value).then((result: any) => {
+    updateOption(optionId, body).then((result: any) => {
         response.status(OK).json({ code: OK, status: OK_STATUS, additional_info: result });
     }).catch((err) => {
         response.status(err.code).json(err);

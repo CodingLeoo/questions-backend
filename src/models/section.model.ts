@@ -1,8 +1,9 @@
+import { Photo } from './shared.models';
 import { getDateWithTimeZone } from './../utils/time.utils';
 import { SECTION_NOT_FOUND } from './../utils/constants';
 import { ICourse, Course } from './course.models';
 import { IQuestion, IOption, Option, Question } from './question.model';
-import { Document, Schema, Model, model } from 'mongoose';
+import { Document, Schema, Model, model, HookNextFunction } from 'mongoose';
 import { NOT_FOUND } from 'http-status';
 
 
@@ -11,8 +12,7 @@ export interface ISection extends Document {
     title: string
     type: number
     context: string
-    buffer?: Buffer
-    image?: string
+    image?: Photo
     example?: IQuestion
     questions: IQuestion[]
     sharedOptions?: IOption[]
@@ -27,8 +27,10 @@ const section: Schema = new Schema({
     title: { type: String, required: true },
     type: { type: Number, required: true },
     context: { type: String, required: true },
-    buffer: { type: Buffer },
-    image: { type: String },
+    image: {
+        content: { data: Buffer, contentType: String },
+        content_type: { type: String }
+    },
     example: {
         type: Schema.Types.ObjectId,
         ref: 'question',
@@ -42,30 +44,30 @@ const section: Schema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'option'
     }],
-    questions_count : {type : Number}
+    questions_count: { type: Number }
 
 }, { timestamps: { createdAt: 'create_date', updatedAt: 'last_update_date' } });
 
 // TRIGGER METHODS
 
-section.post('find', (docs: any) => {
+section.post('find', (docs: any , next : any) => {
     docs.forEach((doc: ISection) => {
-        if (doc.buffer)
-            doc.image = doc.buffer.toString('base64');
-        doc.buffer = undefined;
         doc.create_date = getDateWithTimeZone(doc.create_date);
         doc.last_update_date = getDateWithTimeZone(doc.last_update_date);
         doc.questions_count = doc.questions.length;
     })
+    next();
 })
 
-section.post('findOne', (doc: ISection) => {
-    if (doc.buffer)
-        doc.image = doc.buffer.toString('base64');
-    doc.buffer = undefined;
+section.post('findOne', (doc: ISection, next: any) => {
+    if (!doc) {
+        const err = { code: NOT_FOUND, status: SECTION_NOT_FOUND };
+        return next(err);
+    }
     doc.create_date = getDateWithTimeZone(doc.create_date);
     doc.last_update_date = getDateWithTimeZone(doc.last_update_date);
     doc.questions_count = doc.questions.length;
+    next();
 })
 
 section.post('findOneAndDelete', (result: ISection, next: any) => {

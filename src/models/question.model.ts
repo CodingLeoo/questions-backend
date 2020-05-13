@@ -1,3 +1,4 @@
+import { Photo } from './shared.models';
 import { ISection, Section } from './section.model';
 import { QUESTION_NOT_FOUND } from './../utils/constants';
 import { Document, Model, model, Schema } from 'mongoose';
@@ -13,8 +14,7 @@ export interface IQuestion extends Document {
 export interface IOption extends Document {
     section?: ISection;
     question?: IQuestion;
-    image?: string;
-    buffer?: Buffer;
+    image?: Photo;
     text: string;
     answer?: boolean;
 }
@@ -52,8 +52,10 @@ const option: Schema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'question',
     },
-    image: { type: String },
-    buffer: { type: Buffer },
+    image: {
+        content: { data: Buffer, contentType: String },
+        content_type: { type: String }
+    },
     text: { type: String, required: true },
     answer: Boolean
 })
@@ -72,14 +74,6 @@ question.post('findOneAndDelete', (result: IQuestion, next: any) => {
                 next();
             })
         })
-    })
-})
-
-option.post('find', (docs: any) => {
-    docs.forEach((doc: IOption) => {
-        if (doc.buffer)
-            doc.image = doc.buffer.toString('base64');
-        doc.buffer = undefined;
     })
 })
 

@@ -4,6 +4,13 @@ import { NOT_FOUND, INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED } from 'http-status'
 import { IQuestion, Question, Option, IOption } from './../models/question.model';
 
 
+const getAsBuffer = (base64String: string) => {
+    if (base64String)
+        return Buffer.from(base64String, 'base64');
+    return undefined;
+}
+
+
 export const createQuestion = async (request: any, sectionId: string): Promise<any> => {
     try {
         const dbSection = await Section.findOne({ _id: sectionId });
@@ -110,6 +117,10 @@ export const createSharedOption = async (request: any, sectionId: string) => {
             throw { code: NOT_FOUND, status: OPTION_NOT_FOUND };
         }
         const option = await Option.create({ text: request.text, answer: request.answer, section: result });
+
+        if (request.image) {
+           await option.updateOne({ $set: { image: { content: getAsBuffer(request.image.content), content_type: request.image.content_type } } });
+        }
         return { code: OK, status: OK_STATUS, additional_information: { result_id: option._id } };
     }
     catch (err) {
@@ -121,14 +132,16 @@ export const createSharedOption = async (request: any, sectionId: string) => {
 }
 
 
-export const addOptionImage = async (optionId: string, value: string): Promise<any> => {
+export const updateOption = async (optionId: string, request: any): Promise<any> => {
     try {
+        if (request.image) {
+            request.image.content = getAsBuffer(request.image.content);
+        }
         const result = await Option.findById(optionId);
         if (!result) {
             throw { code: NOT_FOUND, status: QUESTION_NOT_FOUND };
         }
-        const data = new Buffer(value, 'base64');
-        return result.updateOne({ $set: { buffer: data } });
+        return await result.updateOne({ text: request.text, image: request.image });
     }
     catch (err) {
         if (err.code)
