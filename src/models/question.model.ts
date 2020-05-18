@@ -67,7 +67,6 @@ question.post('findOneAndDelete', (result: IQuestion, next: any) => {
         const err = { code: NOT_FOUND, status: QUESTION_NOT_FOUND }
         return next(err);
     }
-
     Section.findById(result.section).then((section: ISection) => {
         section.updateOne({ $pull: { questions: result._id } }).then(() => {
             Option.deleteMany({ question: result }).then(() => {

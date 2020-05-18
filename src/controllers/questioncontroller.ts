@@ -13,7 +13,7 @@ QuestionRouter.post('/:sectionId/create', (request: Request, response: Response)
     const sectionId = request.params.sectionId;
     const body = request.body;
     createQuestion(body, sectionId).then((result: IQuestion) => {
-        response.status(OK).json({ code: OK, status: OK_STATUS, additional_info: result });
+        response.status(OK).json({ code: OK, status: OK_STATUS, additional_information: result });
     }).catch((err) => {
         response.status(err.code).json(err);
     })

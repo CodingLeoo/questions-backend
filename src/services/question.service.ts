@@ -24,7 +24,13 @@ export const createQuestion = async (request: any, sectionId: string): Promise<a
         if (!request.example)
             await dbSection.updateOne({ $push: { questions: question } });
 
+        const ids: any[] = [];
         request.options.forEach((option: any) => {
+            if (option._id) {
+                ids.push(option);
+                request.options.splice(request.options.indexOf(option), 1);
+                return;
+            }
             if (option.image) {
                 option.buffer = new Buffer(option.image, 'base64');
                 option.image = undefined;
@@ -33,10 +39,21 @@ export const createQuestion = async (request: any, sectionId: string): Promise<a
             option.section = sectionId;
         });
         const opts: any = await Option.create(...request.options);
-        const ans = opts.find((opt: any) => opt.answer);
-        const result = await question.updateOne({ $push: { options: [...opts] }, $set: { answer: ans } });
+        let ans;
+        const data: any = [];
+        if (opts) {
+            ans = opts.find((opt: any) => opt.answer);
+            data.concat(opts);
+        }
+
+        if (!ans) {
+            ans = ids.find((opt: any) => opt.answer);
+            data.concat(ids);
+        }
+
+        const result = await question.updateOne({ $push: { options: data }, $set: { answer: ans } });
         if (result.n)
-            return { result_id: question._id, option_ids: opts.map((option: IOption) => option._id) };
+            return { result_id: question._id, option_ids: data.map((option: IOption) => option._id) };
     }
     catch (err) {
         if (err.code)
@@ -100,7 +117,7 @@ export const updateQuestion = async (questionId: string, request: any, access: s
 
 export const deleteQuestion = async (questionId: string): Promise<void> => {
     try {
-        Question.findOneAndDelete({ _id: questionId });
+        await Question.findOneAndDelete({ _id: questionId });
     }
     catch (err) {
         if (err.code)
@@ -119,7 +136,7 @@ export const createSharedOption = async (request: any, sectionId: string) => {
         const option = await Option.create({ text: request.text, answer: request.answer, section: result });
 
         if (request.image) {
-           await option.updateOne({ $set: { image: { content: getAsBuffer(request.image.content), content_type: request.image.content_type } } });
+            await option.updateOne({ $set: { image: { content: getAsBuffer(request.image.content), content_type: request.image.content_type } } });
         }
         return { code: OK, status: OK_STATUS, additional_information: { result_id: option._id } };
     }
