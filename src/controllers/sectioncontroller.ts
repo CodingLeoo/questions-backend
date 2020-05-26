@@ -1,7 +1,7 @@
 import { trackAccess } from './../middlewares/common.middleware';
 import { ISection } from './../models/section.model';
 import { OK } from 'http-status';
-import { createSection, updateSection, deleteSection, addSharedOption, addQuestion, findSection } from './../services/section.service';
+import { createSection, updateSection, deleteSection, addSharedOption, findSection } from './../services/section.service';
 import { Router, Request, Response } from 'express';
 
 
@@ -46,16 +46,6 @@ SectionRouter.patch('/:sectionid/shared/:optionid', (request: Request, response:
     const sectionId = request.params.sectionid;
     const optionId = request.params.optionid;
     addSharedOption(optionId, sectionId).then((result: any) => {
-        response.status(OK).json(result);
-    }).catch((err) => {
-        response.status(err.code).json(err);
-    })
-})
-
-SectionRouter.patch('/:sectionid/question/:questionid', (request: Request, response: Response) => {
-    const sectionId = request.params.sectionid;
-    const questionId = request.params.questionid;
-    addQuestion(questionId, sectionId).then((result: any) => {
         response.status(OK).json(result);
     }).catch((err) => {
         response.status(err.code).json(err);

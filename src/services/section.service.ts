@@ -69,23 +69,6 @@ export const createSection = async (request: any, courseId: string): Promise<{ c
     }
 }
 
-
-export const addQuestion = async (questionId: string, sectionId: string): Promise<{ code: number, status: string, additional_information?: any }> => {
-    try {
-        const result = await Section.findById(sectionId);
-        if (!result)
-            throw { code: NOT_FOUND, status: SECTION_NOT_FOUND };
-        const updateResult = await result.updateOne({ $push: { questions: questionId } });
-        return { code: OK, status: OK_STATUS, additional_information: updateResult };
-    }
-    catch (err) {
-        if (err.code)
-            throw err;
-        else
-            throw { code: INTERNAL_SERVER_ERROR, status: err.toString() };
-    }
-}
-
 export const addSharedOption = async (optionId: string, sectionId: string): Promise<{ code: number, status: string, additional_information?: any }> => {
     try {
         const result = await Section.findById(sectionId);
