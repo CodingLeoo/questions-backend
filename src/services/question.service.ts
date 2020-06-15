@@ -40,15 +40,15 @@ export const createQuestion = async (request: any, sectionId: string): Promise<a
         });
         const opts: any = await Option.create(...request.options);
         let ans;
-        const data: any = [];
+        let data: any = [];
         if (opts) {
             ans = opts.find((opt: any) => opt.answer);
-            data.concat(opts);
+            data = data.concat(opts);
         }
 
         if (!ans) {
             ans = ids.find((opt: any) => opt.answer);
-            data.concat(ids);
+            data = data.concat(ids);
         }
 
         const result = await question.updateOne({ $push: { options: data }, $set: { answer: ans } });
@@ -99,11 +99,10 @@ export const updateQuestion = async (questionId: string, request: any, access: s
         if (result.answer._id.toString() !== answerRequest._id) {
             result.answer.answer = undefined;
             result.answer.save();
-            return result.updateOne({ $set: { answer: answerRequest._id, question: request.question } });
+            return await result.updateOne({ $set: { answer: answerRequest, question: request.question } });
         }
         else {
-            return result.updateOne({ $set: { question: request.question } });
-            ;
+            return await result.updateOne({ $set: { question: request.question } });
         }
     }
     catch (err) {
