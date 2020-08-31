@@ -11,7 +11,7 @@ ExamsRouter.get('/:examid/find', (request: Request, response: Response) => {
     const examId = request.params.examid;
 
     findExam(examId).then((result: IExam) => {
-        response.status(OK).json(result);
+        response.status(OK).json({data : result});
     }).catch((err: any) => {
         console.log(err);
         response.status(err.code).json(err);
