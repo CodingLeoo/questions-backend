@@ -1,16 +1,17 @@
 import { Exam } from './../models/exam.models';
 import { Calification } from './../models/calification.model';
-import { getDateWithTimeZone } from './../utils/time.utils';
+import { getDateWithTimeZone, isValidCode } from './../utils/time.utils';
 import { ISection, Section } from './../models/section.model';
 import { COURSE_ENROLLMENT_ICON, COURSE_CREATION_ICON, STUDENTS_EMPTY_STATE } from './../utils/icon-constants';
 import { firstName } from './../utils/string.utils';
 import { USER_COURSE_ENROLL, USER_COURSE_ENROLLMENT_DESCRIPTION, USER_COURSE_CREATION_DESCRIPTION, USER_COURSE_CREATION } from './../utils/event-constants';
 import { registryUserActivity } from './../helpers/user.activity.helper';
-import { OK_STATUS, UNAUTHORIZED_STATUS, COURSE_NOT_FOUND, NO_STUDENTS_FOUND, COURSE_ALREADY_ENROLLED } from './../utils/constants';
-import { OK, UNAUTHORIZED, NOT_FOUND, INTERNAL_SERVER_ERROR, CONFLICT } from 'http-status';
+import { OK_STATUS, UNAUTHORIZED_STATUS, COURSE_NOT_FOUND, NO_STUDENTS_FOUND, COURSE_ALREADY_ENROLLED, INVALID_ENROLL_CODE } from './../utils/constants';
+import { OK, UNAUTHORIZED, NOT_FOUND, INTERNAL_SERVER_ERROR, CONFLICT, UNPROCESSABLE_ENTITY } from 'http-status';
 import { Topic } from './../models/topic.models';
 import { ICourse, Course } from './../models/course.models';
 import { User, IUser } from './../models/auth.models';
+import { InscriptionCode } from './../models/inscriptioncode.model';
 
 
 
@@ -36,16 +37,25 @@ export const createCourse = async (sessionId: string, request: any): Promise<any
 }
 
 
-export const enrollCourse = async (sessionId: string, id: string): Promise<any> => {
+export const enrollCourse = async (sessionId: string, id: string, inscriptionCode: string): Promise<any> => {
     try {
         const courseResult = await Course.findOne({ _id: id }).populate('students');
+
         if (!courseResult) {
             throw { code: NOT_FOUND, status: COURSE_NOT_FOUND };
         }
+
         const result = await User.findOne({ session_id: sessionId });
         const student = courseResult.students.find((user: IUser) => user._id.equals(result._id));
+
         if (student) {
             throw { code: CONFLICT, status: COURSE_ALREADY_ENROLLED };
+        }
+
+        const code = await InscriptionCode.findOne({ code: inscriptionCode });
+        
+        if (!code || !isValidCode(code.valid_until)) {
+            throw { code: UNPROCESSABLE_ENTITY, status: INVALID_ENROLL_CODE };
         }
 
         await courseResult.updateOne({ $push: { students: result } });

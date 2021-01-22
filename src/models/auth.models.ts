@@ -64,8 +64,7 @@ user.post('find', (docs: any) => {
 
 user.post('findOne', (doc: IUser, next: any) => {
     if (!doc) {
-        const err = new Error(USER_NOT_FOUND_STATUS);
-        return next(err);
+        return next();
     }
 
     if (doc.creation_date || doc.last_update_date) {

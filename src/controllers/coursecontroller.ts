@@ -71,7 +71,8 @@ CoursesRouter.post('/save', (request: Request, response: Response) => {
 CoursesRouter.post('/:course/enroll', (request: Request, response: Response) => {
     const courseId = request.params.course;
     const sessionId = request.headers.ssid as string;
-    enrollCourse(sessionId, courseId).then((result: any) => {
+    const inscriptionCode = request.query.code as string;
+    enrollCourse(sessionId, courseId , inscriptionCode).then((result: any) => {
         response.status(OK).json(result);
     }).catch((err) => {
         response.status(err.code).json(err);
