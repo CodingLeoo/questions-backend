@@ -53,7 +53,7 @@ export const enrollCourse = async (sessionId: string, id: string, inscriptionCod
         }
 
         const code = await InscriptionCode.findOne({ code: inscriptionCode });
-        
+
         if (!code || !isValidCode(code.valid_until)) {
             throw { code: UNPROCESSABLE_ENTITY, status: INVALID_ENROLL_CODE };
         }
