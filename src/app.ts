@@ -10,6 +10,7 @@ import cors from 'cors';
 import { QuestionRouter } from './controllers/questioncontroller';
 import { ExamsRouter } from './controllers/examcontroller';
 import { calificationRouter } from './controllers/calificationcontroller';
+import { InscriptionCodeRouter } from './controllers/inscriptioncodecontroller';
 const port = process.env.PORT || 3000;
 const dataBaseUrl = process.env.DATABASE_URL || "mongodb://localhost:27017/questions";
 
@@ -31,6 +32,7 @@ app.use('/api/question/v1', QuestionRouter);
 app.use('/api/section/v1', SectionRouter);
 app.use('/api/exam/v1', ExamsRouter);
 app.use('/api/calification/v1', calificationRouter);
+app.use('/api/inscriptioncode/v1', InscriptionCodeRouter);
 
 app.listen(port, () => {
     console.log(`app is up on port ${port}`);

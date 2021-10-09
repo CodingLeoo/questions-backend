@@ -13,6 +13,7 @@ export const EXAM_NOT_FOUND = 'not matched exam with requested information.';
 export const COURSE_NOT_FOUND = 'not matched courses with requested course.';
 export const RESULTSET_NOT_FOUND = 'not matched result set´s with requested information';
 export const COURSE_ALREADY_ENROLLED =  'you´re already enrolled in this course!';
+export const INVALID_ENROLL_CODE = 'invalid enroll code';
 export const SECTION_NOT_FOUND = 'not matched sections with requested section.';
 export const NO_COURSES_FOUND = 'Oops , looks like you dont have courses :(';
 export const NO_CALIFICATIONS_FOUND = 'Oops , looks like you dont have califications u.u';
